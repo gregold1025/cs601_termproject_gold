@@ -1,0 +1,230 @@
+/* Shared styles for all customize-mode UI components.
+   The `cui-` prefix scopes class names to "Customize UI". */
+
+/* ----- Tokens --------------------------------------------------------- */
+
+:root {
+  /* Background for customize-mode containers (color picker, arrows).
+     NOT for the Customize button or Save/Cancel buttons. */
+  --cui-bg: darkslategrey;
+}
+
+/* ----- Buttons --------------------------------------------------------- */
+
+.cui-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.cui-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+}
+
+.cui-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+}
+
+.cui-button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ----- Customize button (idle state, bottom-right of playground) ------ */
+
+.cui-customize-button {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  background: #555;
+  color: #fff;
+}
+
+.cui-customize-button:hover {
+  background: #666;
+}
+
+/* ----- Save / Cancel button group (customize-mode state) -------------- */
+
+.cui-save-cancel {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  gap: 8px;
+}
+
+.cui-cancel-button {
+  background: #999;
+  color: #fff;
+}
+
+.cui-cancel-button:hover {
+  background: #aaa;
+}
+
+.cui-save-button {
+  background: #222;
+  color: #fff;
+}
+
+.cui-save-button:hover {
+  background: #383838;
+}
+
+/* ----- Color picker (top of playground, "in the sky") ---------------- */
+
+.cui-color-picker {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  max-width: 280px;
+  background-color: var(--cui-bg);
+  padding: 10px;
+  border-radius: 50px;
+}
+
+.cui-color-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+.cui-color-circle:hover {
+  transform: scale(1.1);
+}
+
+.cui-color-circle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.cui-color-circle--selected {
+  box-shadow:
+    0 0 0 3px #2a2a2a,
+    0 2px 6px rgba(0, 0, 0, 0.22);
+}
+
+/* ----- Animal arrows (flank the character) --------------------------- */
+
+.cui-animal-arrow {
+  position: absolute;
+  bottom: 200px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cui-bg);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+.cui-animal-arrow:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+}
+
+.cui-animal-arrow:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.cui-animal-arrow--left {
+  left: calc(50% - 110px);
+}
+
+.cui-animal-arrow--right {
+  left: calc(50% + 60px);
+}
+
+/* ----- Biome arrows (playground edges) ------------------------------- */
+
+.cui-biome-arrow {
+  position: absolute;
+  top: 50%;
+  margin-top: -32px;
+  width: 64px;
+  height: 64px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cui-bg);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+.cui-biome-arrow:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+}
+
+.cui-biome-arrow:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.cui-biome-arrow--left {
+  left: 24px;
+}
+
+.cui-biome-arrow--right {
+  right: 24px;
+}
+
+/* ----- Welcome banner (top of playground, in the sky) ---------------- */
+
+.cui-welcome-banner {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 24px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 24px;
+  font-family: "Love Ya Like A Sister", cursive;
+  font-weight: 400;
+  font-size: 45px;
+  color: #000;
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+}
