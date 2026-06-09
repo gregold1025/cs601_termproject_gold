@@ -1,6 +1,6 @@
 // Lion rig. SVG viewBox 316 × 410.
 
-import { CharacterRig, DEFAULT_MOUTH_CONFIG } from "../character";
+import { CharacterRig, DEFAULT_MOUTH_CONFIG } from "./types";
 
 export const LION_RIG: CharacterRig = {
   anchors: {

@@ -1,6 +1,6 @@
 // Pig rig. SVG viewBox 348 × 318.
 
-import { CharacterRig, DEFAULT_MOUTH_CONFIG } from "../character";
+import { CharacterRig, DEFAULT_MOUTH_CONFIG } from "./types";
 
 export const PIG_RIG: CharacterRig = {
   anchors: {

@@ -1,11 +1,12 @@
-// Playground — the windowed biome environment the character lives in.
-// Renders a full-window-width, 700px-tall frame with the biome's three
-// SVG layers parallax-stacked behind. The character has its own slot;
-// other overlay UI (buttons, controls) lives as free children.
+// Playground — the windowed space the character lives in.
+// Composes: <Biome /> (sky + parallax layers) + the character + overlay UI.
+// Owns the window-width tracking and the camera math, because both the
+// biome and the character need them to project the world into screen space.
 
 import React, { ReactNode, useEffect, useState } from "react";
-import { Biome } from "../data/avatar";
+import { Biome as BiomeName } from "../data/avatar";
 import { BIOME_SCENES } from "../data/biomes";
+import { Biome } from "./Biome";
 
 const PLAYGROUND_HEIGHT = 700;
 
@@ -14,18 +15,27 @@ const PLAYGROUND_HEIGHT = 700;
 const CHARACTER_GROUND_OFFSET = 60;
 
 export type PlaygroundProps = {
-  biome: Biome;
-  // The character renders in the canonical center-ground slot.
+  biome: BiomeName;
   character?: ReactNode;
-  // Free overlay UI — siblings inside the playground, each positioned
-  // by its own styles (e.g. bottom-right CustomizeButton, top ColorPicker).
+  // Character position relative to world center (default { x: 0, y: 0 }).
+  // characterX > 0 = right of world center. characterY < 0 = airborne.
+  characterX?: number;
+  characterY?: number;
+  // Free overlay UI — siblings inside the playground, positioned by their
+  // own styles (e.g. bottom-right CustomizeButton, top-center ColorPicker).
   children?: ReactNode;
 };
 
-export function Playground({ biome, character, children }: PlaygroundProps) {
+export function Playground({
+  biome,
+  character,
+  characterX = 0,
+  characterY = 0,
+  children,
+}: PlaygroundProps) {
   const scene = BIOME_SCENES[biome];
 
-  // Track the window width so layer offsets recompute on resize.
+  // Track the window width so layer offsets and camera clamping update on resize.
   const [windowWidth, setWindowWidth] = useState<number>(
     typeof window !== "undefined" ? window.innerWidth : scene.width,
   );
@@ -35,20 +45,17 @@ export function Playground({ biome, character, children }: PlaygroundProps) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Static initial camera at world center.
-  // When the avatar can move, cameraX becomes dynamic state.
-  const cameraX = scene.width / 2;
-
-  // For a layer with the given parallax rate, compute its CSS `left` in
-  // pixels so that at cameraX = scene.width / 2 (center of world) the
-  // layer's center aligns with the viewport center, and as cameraX
-  // shifts the layer slides at its own rate.
-  const layerLeft = (parallaxRate: number) =>
-    windowWidth / 2 -
-    scene.width / 2 -
-    (cameraX - scene.width / 2) * parallaxRate;
-
-  const layers = [scene.back, scene.front, scene.foreground];
+  // Camera follows the character's world X, clamped within world bounds.
+  // When clamped at an edge, the character slides off-center.
+  const worldCenter = scene.width / 2;
+  const characterWorldX = worldCenter + characterX;
+  const minCamera = Math.min(windowWidth / 2, worldCenter);
+  const maxCamera = Math.max(scene.width - windowWidth / 2, worldCenter);
+  const cameraX = Math.min(
+    Math.max(characterWorldX, minCamera),
+    maxCamera,
+  );
+  const characterScreenLeft = characterWorldX - cameraX + windowWidth / 2;
 
   return (
     <div
@@ -56,36 +63,17 @@ export function Playground({ biome, character, children }: PlaygroundProps) {
         position: "relative",
         width: "100%",
         height: PLAYGROUND_HEIGHT,
-        background: scene.sky,
         overflow: "hidden",
       }}
     >
-      {/* Biome layers — back to front, anchored to bottom. */}
-      {layers.map((layer) => (
-        <img
-          key={layer.name}
-          src={layer.svgUrl}
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          style={{
-            position: "absolute",
-            left: layerLeft(layer.parallaxRate),
-            bottom: 0,
-            width: scene.width,
-            pointerEvents: "none",
-            userSelect: "none",
-          }}
-        />
-      ))}
+      <Biome biome={biome} cameraX={cameraX} windowWidth={windowWidth} />
 
-      {/* Character — canonical center-ground slot. */}
       {character && (
         <div
           style={{
             position: "absolute",
-            left: "50%",
-            bottom: CHARACTER_GROUND_OFFSET,
+            left: characterScreenLeft,
+            bottom: CHARACTER_GROUND_OFFSET - characterY,
             transform: "translateX(-50%)",
             pointerEvents: "none",
           }}
@@ -94,7 +82,6 @@ export function Playground({ biome, character, children }: PlaygroundProps) {
         </div>
       )}
 
-      {/* Overlay children — free siblings, position themselves. */}
       {children}
     </div>
   );

@@ -4,7 +4,7 @@
 
 import React from "react";
 import { Avatar } from "../../data/avatar";
-import { ADJECTIVE_PALETTES } from "../../data/palette";
+import { ADJECTIVE_PALETTES } from "../../data/characters/palette";
 import "./customize-ui.css";
 
 export type WelcomeBannerProps = {

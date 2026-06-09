@@ -10,8 +10,8 @@ import {
   CharacterRig,
   limbPath,
   mouthPath,
-} from "../data/character";
-import { Palette, SVG_SHADE_VAR } from "../data/palette";
+} from "../data/characters/types";
+import { Palette, SVG_SHADE_VAR } from "../data/characters/palette";
 
 import { ReactComponent as BearSvg } from "../assets/animals/BEAR.svg";
 import { ReactComponent as PigSvg } from "../assets/animals/PIG.svg";

@@ -1,6 +1,6 @@
 // Monkey rig. SVG viewBox 231 × 375.
 
-import { CharacterRig, DEFAULT_MOUTH_CONFIG } from "../character";
+import { CharacterRig, DEFAULT_MOUTH_CONFIG } from "./types";
 
 export const MONKEY_RIG: CharacterRig = {
   anchors: {

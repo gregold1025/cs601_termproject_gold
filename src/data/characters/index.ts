@@ -2,13 +2,13 @@
 // so it can be consumed by code that doesn't care about rendering.
 
 import { Animal } from "../avatar";
-import { CharacterRig } from "../character";
+import { CharacterRig } from "./types";
 import { BEAR_RIG } from "./bear";
 import { PIG_RIG } from "./pig";
 import { LION_RIG } from "./lion";
 import { MONKEY_RIG } from "./monkey";
 
-export const RIGS: Record<Animal, CharacterRig> = {
+export const CHARACTER_RIGS: Record<Animal, CharacterRig> = {
   bear: BEAR_RIG,
   pig: PIG_RIG,
   lion: LION_RIG,

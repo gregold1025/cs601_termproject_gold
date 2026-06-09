@@ -2,7 +2,7 @@
 
 import { Biome } from "../avatar";
 import { BiomeScene } from "./types";
-import { MOUNTAIN_BIOME } from "./mountain";
+import { MOUNTAIN_BIOME } from "./mountains";
 import { DESERT_BIOME } from "./desert";
 import { JUNGLE_BIOME } from "./jungle";
 

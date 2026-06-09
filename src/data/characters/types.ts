@@ -17,10 +17,10 @@ export type LimbState = {
 
 // LimbConfig — per-limb constants.
 export type LimbConfig = {
-  length: number;        // straight-line distance from anchor to endpoint
-  angleMin: number;      // degrees, clamp on endAngle
-  angleMax: number;      // degrees, clamp on endAngle
-  bendMax: number;       // absolute max for |bendAmount|
+  length: number; // straight-line distance from anchor to endpoint
+  angleMin: number; // degrees, clamp on endAngle
+  angleMax: number; // degrees, clamp on endAngle
+  bendMax: number; // absolute max for |bendAmount|
 };
 
 // --- Mouth ---------------------------------------------------------------
@@ -73,7 +73,7 @@ export type BodyAnchors = {
   rightShoulder: Point;
   leftHip: Point;
   rightHip: Point;
-  mouth: Point;          // center of the mouth ellipse
+  mouth: Point; // center of the mouth ellipse
 };
 
 // CharacterRig — full per-animal configuration.
@@ -92,7 +92,11 @@ export type CharacterRig = {
 
 // Compute the SVG path string for a limb's quadratic Bezier curve.
 // Returns a path's `d` attribute string: "M ax ay Q cx cy ex ey".
-export function limbPath(anchor: Point, state: LimbState, length: number): string {
+export function limbPath(
+  anchor: Point,
+  state: LimbState,
+  length: number,
+): string {
   const rad = (state.endAngle * Math.PI) / 180;
   const end: Point = {
     x: anchor.x + Math.cos(rad) * length,
@@ -116,8 +120,14 @@ export function limbPath(anchor: Point, state: LimbState, length: number): strin
 
 export function clampLimb(state: LimbState, config: LimbConfig): LimbState {
   return {
-    endAngle: Math.max(config.angleMin, Math.min(config.angleMax, state.endAngle)),
-    bendAmount: Math.max(-config.bendMax, Math.min(config.bendMax, state.bendAmount)),
+    endAngle: Math.max(
+      config.angleMin,
+      Math.min(config.angleMax, state.endAngle),
+    ),
+    bendAmount: Math.max(
+      -config.bendMax,
+      Math.min(config.bendMax, state.bendAmount),
+    ),
   };
 }
 
@@ -153,7 +163,10 @@ export function mouthPath(center: Point, state: MouthState): string {
 export function clampMouth(state: MouthState, config: MouthConfig): MouthState {
   return {
     width: Math.max(config.widthMin, Math.min(config.widthMax, state.width)),
-    height: Math.max(config.heightMin, Math.min(config.heightMax, state.height)),
+    height: Math.max(
+      config.heightMin,
+      Math.min(config.heightMax, state.height),
+    ),
     startAngle: state.startAngle,
     sweepAngle: state.sweepAngle,
   };
@@ -165,15 +178,15 @@ export function clampMouth(state: MouthState, config: MouthConfig): MouthState {
 export const DEFAULT_MOUTH: MouthState = {
   width: 35,
   height: 25,
-  startAngle: 0,    // right side of ellipse
-  sweepAngle: 180,  // sweep clockwise across the bottom
+  startAngle: 0, // right side of ellipse
+  sweepAngle: 180, // sweep clockwise across the bottom
 };
 
 // Neutral resting pose — limbs hang down, mouth smiling.
 export const NEUTRAL_POSE: CharacterPose = {
-  leftArm:  { endAngle: 100, bendAmount: 0 },
-  rightArm: { endAngle: 80,  bendAmount: 0 },
-  leftLeg:  { endAngle: 95,  bendAmount: 0 },
-  rightLeg: { endAngle: 85,  bendAmount: 0 },
+  leftArm: { endAngle: 100, bendAmount: 10 },
+  rightArm: { endAngle: 80, bendAmount: -10 },
+  leftLeg: { endAngle: 95, bendAmount: 0 },
+  rightLeg: { endAngle: 85, bendAmount: 0 },
   mouth: DEFAULT_MOUTH,
 };

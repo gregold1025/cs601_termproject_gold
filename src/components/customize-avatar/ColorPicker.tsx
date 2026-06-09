@@ -1,9 +1,8 @@
 // Color picker — top of playground, "in the sky".
 // Flexbox of 5 small colored circles (one per adjective). Click to select.
 
-import React from "react";
 import { Adjective } from "../../data/avatar";
-import { ADJECTIVE_PALETTES } from "../../data/palette";
+import { ADJECTIVE_PALETTES } from "../../data/characters/palette";
 import "./customize-ui.css";
 
 const ADJECTIVES: Adjective[] = [

@@ -2,7 +2,7 @@
 // Naming convention: "left"/"right" = SCREEN orientation, not character anatomy.
 // (i.e. leftShoulder is the shoulder appearing on the viewer's left side.)
 
-import { CharacterRig, DEFAULT_MOUTH_CONFIG } from "../character";
+import { CharacterRig, DEFAULT_MOUTH_CONFIG } from "./types";
 
 export const BEAR_RIG: CharacterRig = {
   anchors: {
