@@ -59,6 +59,29 @@ export type CharacterProps = {
   width?: number; // rendered display width in CSS pixels
 };
 
+// Helper for overlays (e.g. pose handles) that need to match Character's
+// viewBox and display dimensions exactly. Same math as the body of the
+// component below — pulled out so callers can render in the same space.
+export function characterDisplayBox(animal: Animal, width?: number) {
+  const dims = ANIMAL_DIMENSIONS[animal];
+  const displayWidth = width ?? ANIMAL_DISPLAY_WIDTHS[animal];
+  const viewWidth = dims.width + PADDING.left + PADDING.right;
+  const viewHeight = dims.height + PADDING.top + PADDING.bottom;
+  const displayHeight = displayWidth * (viewHeight / viewWidth);
+  return {
+    viewBox: {
+      minX: -PADDING.left,
+      minY: -PADDING.top,
+      width: viewWidth,
+      height: viewHeight,
+    },
+    display: {
+      width: displayWidth,
+      height: displayHeight,
+    },
+  };
+}
+
 export function Character({
   animal,
   rig,
