@@ -3,6 +3,43 @@
 Running list of upcoming work. Items are roughly ordered by dependency
 and natural buildup; reorder as priorities shift.
 
+## #1 — Read-through + architecture doc session
+
+Walk the full codebase together (it's at its smallest now), produce
+ARCHITECTURE.md with a wiring diagram (data → engine hooks → views).
+Doubles as the write-up skeleton, and marks the extension points the
+world/shapes vision (below) will plug into.
+
+## Design vision — north star (Jun 10)
+
+Modules are constraint-bounded mechanics; the point is **compound
+interactions across modules** producing problem-solving. Dance lab's
+constraint: motion only by a vector's reach, poses cosmetic, mappings
+user-owned. Target experiences: spawn squares that stack into a
+staircase, climb it with a dance command; a square with bounce
+properties as a trampoline compounding with launch impulses.
+
+Key architectural insight: the shapes library (spawn by command) and
+the world builder (drag-in placement, zoomed-out view) are **two
+surfaces over one world-object model** — placed instances with type,
+position, properties. Mirrors the existing artifact/invocation split
+(lab edits moves; command input invokes them).
+
+Implied stack, gated by collision:
+- `data/world/`: shape type + property definitions (solid, bouncy, …)
+- World state: persisted list of placed instances (effectively a
+  "level" artifact; makes import/export = sharing worlds)
+- AABB collision in `useCharacterPhysics` — character vs static
+  rectangles; ground generalizes from y=0 to "top of any box";
+  trampoline = restitution surface feeding applyImpulse
+- World-builder view: third view in the App switcher; zoom-out is a
+  scale transform over the same world; character pickup = drag handle
+  writing physics position (gravity resumes on release); BottomBar
+  carousel becomes the module/object palette
+- Open (Greg's calls): which surface first; property vocabulary;
+  spawn commands in the shared namespace (`staircase.climb`?); the
+  user-defined-mechanics lab (third horizon — a lab for building labs)
+
 ## Recently landed
 
 - [x] Camera follow with edge clamping; world horizontal bounds in
@@ -27,22 +64,80 @@ and natural buildup; reorder as priorities shift.
       - localStorage persistence (`ugp.move-library.v1`).
 - [x] Golden pedestal under the preview character in the lab.
 
+## Dance Lab — recently completed
+
+- [x] **Playground integration** — the move library is now live in the
+      playground:
+  - `useMovePlayer` composed with `useCharacterPhysics`: physics owns
+    world position, the player owns pose / rotation; placement is the
+    sum.
+  - **Force vector = real physics impulse.** `applyImpulse(vx, vy)` on
+    `useCharacterPhysics`; impulses are additive and persist — the
+    character lands wherever physics says, no return-to-start (the
+    lab preview's return-home is preview-only). Friction now applies
+    only while grounded, so launches travel as true projectile arcs.
+  - Typed command box (`CommandInput`) fixed bottom-center, frosted,
+    auto-focus; space/enter executes, Esc blurs. Green/red outline
+    flash for valid/invalid.
+  - Floating command history (`CommandHistory`) bottom-left, entries
+    float upward and fade over 5s, pruned from state on the same clock.
+  - `useCommandRunner` owns input/submit/history/flash/focus;
+    `resolveCommand` in `dance.ts` is the resolver seam (flat find for
+    now; higher-order parsing slots in there).
+  - Focus management: movement keys disabled while the input is
+    focused or customize mode is open.
+- [x] **Force vector → persistent physics impulse** in the playground
+      (`applyImpulse`); friction now grounded-only so launches arc.
+- [x] **Dot operator** — `mw.wm` + space runs moves sequentially.
+      `resolveCommandChain` validates all-or-nothing; `useMovePlayer`
+      gained a queue where each link's physics impulse fires at that
+      link's start.
+- [x] **Name-collision validation** — primary/secondary checked against
+      the whole flat command namespace on Save / Update / Save-as-new;
+      offending field highlights light red with an inline hint.
+- [x] **"Save as new Move"** replaces Cancel-edit; collision validation
+      doubles as the rename prompt.
+- [x] **CSS perspective (800px)** on both the lab stage and the
+      playground character slot — Y-flips now read as real 3D.
+
+## Design decisions pending (raised Jun 10, parked deliberately)
+
+- **Arrow keys vs command-only movement.** Are arrow keys a permanent
+  "body" input alongside the command "language," or does the move
+  library become the sole source of motion? Both paths stay open —
+  the input layer is pluggable by design, and removing arrows later
+  is a deletion, not a refactor. No code pressure to decide early.
+- **Camera vertical follow.** Same clamp math generalizes to Y (the
+  parallax rate works on both axes); needs a deadzone so ordinary
+  jumps don't bob the camera, and rising reveals sky above the
+  bottom-anchored layers (which is fine — it's just sky color).
+  Becomes worth building when big launches go high enough to leave
+  the frame.
+- **Camera vs world artifacts.** How placed artifacts are introduced
+  on screen / interact with the camera. Underspecified — park until
+  the second artifact class has a shape.
+- **Library import/export.** A library is already one JSON array, so
+  export-to-file / import-from-file is architecturally cheap and very
+  demoable ("work in the world someone else built"). Deliberately
+  deferred — scope guard.
+
+## Second artifact class — next major build
+
+- A second library module (polygon grammar — Greg to restate the
+  design). Slots it must fill to plug into the existing architecture:
+  artifact type in `data/`, its own editor view + BottomBar card, its
+  own storage key, and a decision on command-namespace participation
+  (same flat namespace as moves? do dot-chains compose across
+  libraries?). This is the proof that the module architecture is
+  real: two artifact classes sharing one command surface.
+
 ## Dance Lab — still to address
 
-- **Playground integration** — the saved library currently has no
-  consumer outside the lab. The playground character needs:
-  - A `useMovePlayer` instance whose outputs are composed with
-    `useCharacterPhysics` for position and applied to the Character's
-    pose / rotation.
-  - A typed command box fixed to the bottom of the playground (frosted
-    background, auto-focus, spacebar = execute) that resolves typed
-    commands against the move library.
-  - A floating command history (bottom-left, fades upward) for valid
-    and invalid command feedback.
-  - Focus management so arrow keys still drive physics movement when
-    the command input is not focused.
-  - See plan: `PlaygroundView` integration phases A–F written up in
-    the project notes.
+- [x] ~~Reset-pose-to-neutral button~~ — done: "Reset orientation"
+      repurposed as context-dependent "Reset pose" (editing → revert to
+      the saved move; new → ragdoll back to defaults), plus a dashed
+      "+ Make new move" button at the top of the library as the
+      always-available escape hatch.
 - **Higher-order commands** — `slow`, `R3`, etc. The resolver in
   `dance.ts` is currently a flat `find`; needs a tiny parser layer
   when these arrive. Spacebar will eventually act as an argument
@@ -52,9 +147,10 @@ and natural buildup; reorder as priorities shift.
 - **Pose smoothing on interrupted plays** — pose tweens currently
   snap mid-animation when a new play starts (rotation already
   auto-snaps to stable orientations; pose does not).
-- **Back-side SVG art + CSS perspective** so Y-axis rotations show an
-  actual back side rather than a mirrored front. Deferred until
-  back-side art exists.
+- **Back-side SVG art** so Y-axis rotations show an actual back side
+  (tails!) rather than a mirrored front. Perspective is already in;
+  this is now purely an art task plus a front/back Character stack
+  with backface-visibility.
 - **Folder rename** — `src/components/dance-editor/` is the legacy
   name. Lab is the operating name now; either rename the folder to
   `dance-lab/` in a follow-up or leave as-is with a note.

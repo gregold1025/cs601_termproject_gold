@@ -9,6 +9,9 @@ export type MoveLibraryProps = {
   onPlay: (move: Move) => void;
   onEdit: (move: Move) => void;
   onDelete: (move: Move) => void;
+  // Start a fresh draft — the always-available escape hatch out of any
+  // in-progress edit.
+  onNew: () => void;
 };
 
 export function MoveLibrary({
@@ -17,10 +20,19 @@ export function MoveLibrary({
   onPlay,
   onEdit,
   onDelete,
+  onNew,
 }: MoveLibraryProps) {
   return (
     <aside className="dance-editor__library">
       <h2 className="dance-editor__library-title">Move Library</h2>
+      <button
+        type="button"
+        className="dance-editor__new-move"
+        onClick={onNew}
+        title="Clear the form and start a fresh move"
+      >
+        + Make new move
+      </button>
       {moves.length === 0 ? (
         <div className="dance-editor__library-empty">
           No moves yet — save one to start your dictionary.

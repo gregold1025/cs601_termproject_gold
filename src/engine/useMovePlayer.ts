@@ -61,12 +61,21 @@ export type PlayArgs = {
   speed?: number;
 };
 
+// One link of a dot-chained sequence. onStart fires the moment this
+// item begins playing — the playground uses it to apply each move's
+// physics impulse at the right time instead of all-at-once on submit.
+export type SequenceItem = {
+  args: PlayArgs;
+  onStart?: () => void;
+};
+
 export type MovePlayer = {
   isPlaying: boolean;
   currentPose: CharacterPose | null;
   currentOffset: ForceVector;
   currentRotation: Rotation;
   play: (args: PlayArgs) => void;
+  playSequence: (items: SequenceItem[]) => void;
   resetOrientation: () => void;
 };
 
@@ -80,6 +89,12 @@ export function useMovePlayer(config: MovePlayerConfig): MovePlayer {
   } = config;
 
   const phaseRef = useRef<Phase | null>(null);
+  // Remaining items of an in-flight dot-chain sequence.
+  const queueRef = useRef<SequenceItem[]>([]);
+  // Mirror of currentRotation in a ref, so queue-advance logic inside
+  // the game-loop tick reads the exact held value rather than a
+  // possibly-stale render closure.
+  const rotationRef = useRef<Rotation>({ y: 0, z: 0 });
   const [currentPose, setCurrentPose] = useState<CharacterPose | null>(null);
   const [currentOffset, setCurrentOffset] = useState<ForceVector>({
     x: 0,
@@ -89,6 +104,53 @@ export function useMovePlayer(config: MovePlayerConfig): MovePlayer {
     y: 0,
     z: 0,
   });
+
+  // Begin playing one item: fire its onStart hook, then snapshot a new
+  // phase. Shared by play(), playSequence(), and the tick's
+  // queue-advance.
+  const startItem = (item: SequenceItem) => {
+    item.onStart?.();
+    const args = item.args;
+
+    const targetPose = args.targetPose ?? basePose;
+    const rawVelocity = args.forceVector ?? { x: 0, y: 0 };
+    const velocity: ForceVector = {
+      x: rawVelocity.x * FORCE_STRENGTH_MULTIPLIER,
+      y: rawVelocity.y * FORCE_STRENGTH_MULTIPLIER,
+    };
+    const speed = args.speed ?? 1.0;
+    // Give upward launches the time to complete their arc; horizontal
+    // and downward launches use the minimum flight time. All scaled by
+    // playback speed.
+    const ballistic =
+      gravity > 0 && velocity.y < 0 ? (-2 * velocity.y) / gravity : 0;
+    const flyingDuration = Math.max(minFlightTime, ballistic) / speed;
+
+    // Snap the end orientation to the nearest stable multiple of the
+    // per-axis step, so an interrupted spin still lands upright.
+    const rotationStart = { ...rotationRef.current };
+    const idealEndY = rotationStart.y + (args.rotationY ?? 0);
+    const idealEndZ = rotationStart.z + (args.rotationZ ?? 0);
+    const snappedEndY =
+      Math.round(idealEndY / ROTATION_Y_STEP) * ROTATION_Y_STEP;
+    const snappedEndZ =
+      Math.round(idealEndZ / ROTATION_Z_STEP) * ROTATION_Z_STEP;
+    const rotationDelta: Rotation = {
+      y: snappedEndY - rotationStart.y,
+      z: snappedEndZ - rotationStart.z,
+    };
+
+    phaseRef.current = {
+      state: "flying",
+      flyingStart: performance.now(),
+      basePose,
+      targetPose,
+      velocity,
+      rotationStart,
+      rotationDelta,
+      flyingDuration,
+    };
+  };
 
   useGameLoop(() => {
     const phase = phaseRef.current;
@@ -125,6 +187,7 @@ export function useMovePlayer(config: MovePlayerConfig): MovePlayer {
       const pose = lerpPose(phase.basePose, phase.targetPose, poseT);
 
       setCurrentOffset(offset);
+      rotationRef.current = rotation;
       setCurrentRotation(rotation);
       setCurrentPose(pose);
 
@@ -156,6 +219,11 @@ export function useMovePlayer(config: MovePlayerConfig): MovePlayer {
       setCurrentPose(null);
       setCurrentOffset({ x: 0, y: 0 });
       // Rotation persists — next play uses the held value as its start.
+
+      // Dot-chain advance: if a sequence has more links, begin the next
+      // one now that this item's full cycle (flight + reset) is done.
+      const next = queueRef.current.shift();
+      if (next) startItem(next);
     }
   });
 
@@ -164,55 +232,28 @@ export function useMovePlayer(config: MovePlayerConfig): MovePlayer {
     currentPose,
     currentOffset,
     currentRotation,
+    // Single move — interrupt semantics: discards any pending sequence
+    // and starts immediately.
     play: (args) => {
-      const targetPose = args.targetPose ?? basePose;
-      const rawVelocity = args.forceVector ?? { x: 0, y: 0 };
-      const velocity: ForceVector = {
-        x: rawVelocity.x * FORCE_STRENGTH_MULTIPLIER,
-        y: rawVelocity.y * FORCE_STRENGTH_MULTIPLIER,
-      };
-      const speed = args.speed ?? 1.0;
-      // Give upward launches the time to complete their arc; horizontal
-      // and downward launches use the minimum flight time. All scaled by
-      // playback speed.
-      const ballistic =
-        gravity > 0 && velocity.y < 0 ? (-2 * velocity.y) / gravity : 0;
-      const flyingDuration = Math.max(minFlightTime, ballistic) / speed;
-
-      // Snap the end orientation to the nearest stable multiple of the
-      // per-axis step. This means a play interrupted mid-spin still lands
-      // upright (no drift from accumulated half-finished animations).
-      const rotationStart = { ...currentRotation };
-      const desiredDeltaY = args.rotationY ?? 0;
-      const desiredDeltaZ = args.rotationZ ?? 0;
-      const idealEndY = rotationStart.y + desiredDeltaY;
-      const idealEndZ = rotationStart.z + desiredDeltaZ;
-      const snappedEndY = Math.round(idealEndY / ROTATION_Y_STEP) * ROTATION_Y_STEP;
-      const snappedEndZ = Math.round(idealEndZ / ROTATION_Z_STEP) * ROTATION_Z_STEP;
-      const rotationDelta: Rotation = {
-        y: snappedEndY - rotationStart.y,
-        z: snappedEndZ - rotationStart.z,
-      };
-
-      phaseRef.current = {
-        state: "flying",
-        flyingStart: performance.now(),
-        basePose,
-        targetPose,
-        velocity,
-        rotationStart,
-        rotationDelta,
-        flyingDuration,
-      };
+      queueRef.current = [];
+      startItem({ args });
+    },
+    // Dot-chained sequence — each item runs its full cycle (flight +
+    // reset) before the next begins. Submitting a new play/sequence
+    // mid-run discards what's left of the old one.
+    playSequence: (items) => {
+      if (items.length === 0) return;
+      queueRef.current = items.slice(1);
+      startItem(items[0]);
     },
     resetOrientation: () => {
-      // Manual failsafe: cancel any in-flight animation and snap the
-      // character back to its rest position. Used when the orientation
-      // has drifted somewhere unexpected (e.g. mid-animation, an unusual
-      // typed rotation value, etc.).
+      // Manual failsafe: cancel any in-flight animation (and pending
+      // sequence links) and snap the character back to rest.
       phaseRef.current = null;
+      queueRef.current = [];
       setCurrentPose(null);
       setCurrentOffset({ x: 0, y: 0 });
+      rotationRef.current = { y: 0, z: 0 };
       setCurrentRotation({ y: 0, z: 0 });
     },
   };

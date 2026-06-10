@@ -1,0 +1,53 @@
+/* CommandHistory — bottom-left stack; entries float upward and fade.
+   Animation duration matches HISTORY_LIFETIME_MS in useCommandRunner
+   so state pruning and visual exit line up. */
+
+.command-history {
+  position: fixed;
+  bottom: 104px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+@keyframes command-float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  60% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-160px);
+  }
+}
+
+.command-history__entry {
+  font-family: "Love Ya Like A Sister", cursive;
+  font-size: 16px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 2px solid transparent;
+  width: fit-content;
+  animation: command-float-up 5s ease-out forwards;
+}
+
+.command-history__entry--valid {
+  color: #1d5a25;
+  border-color: rgba(63, 156, 74, 0.6);
+}
+
+.command-history__entry--invalid {
+  color: #6e1f1f;
+  border-color: rgba(196, 60, 60, 0.6);
+  text-decoration: line-through;
+}

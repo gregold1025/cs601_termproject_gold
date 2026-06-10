@@ -73,12 +73,12 @@ export function TransformHandles({
     const dy = svgPt.y - bodyCenter.y;
     const mag = Math.hypot(dx, dy);
 
-    // Snap back to "no force" when the user drags within a small radius
-    // of the body center.
-    if (mag < 6) {
-      onForceVectorChange(undefined);
-      return;
-    }
+    // // Snap back to "no force" when the user drags within a small radius
+    // // of the body center.
+    // if (mag < 6) {
+    //   onForceVectorChange(undefined);
+    //   return;
+    // }
 
     // Clamp to the inscribed circle, preserving the drag angle.
     if (mag > maxMagnitude) {

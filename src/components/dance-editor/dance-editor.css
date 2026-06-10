@@ -89,6 +89,30 @@
   font-style: italic;
 }
 
+.dance-editor__new-move {
+  width: 100%;
+  background: transparent;
+  color: #aaa;
+  border: 1px dashed #3a3a3a;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.dance-editor__new-move:hover {
+  color: #f0f0f0;
+  border-color: #666;
+  background: #161616;
+}
+
 .move-card {
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
@@ -174,6 +198,9 @@
   justify-content: center;
   align-items: center;
   min-height: 360px;
+  /* Gives rotateY on the character-wrap real 3D depth (foreshortening)
+     instead of a flat horizontal squish. */
+  perspective: 800px;
 }
 
 .dance-editor__pedestal {
@@ -394,14 +421,33 @@
   background: #1a1a1a;
 }
 
-.dance-editor__cancel-edit {
+.dance-editor__save-as-new {
   background: transparent;
-  color: #aaa;
-  border: 1px solid #444;
+  color: #9ad7a0;
+  border: 1px solid #3f6a45 !important;
   font-family: inherit;
 }
 
-.dance-editor__cancel-edit:hover {
-  color: #f88;
-  border-color: #c44;
+.dance-editor__save-as-new:hover {
+  background: #1d2a1f;
+}
+
+.dance-editor__save-as-new:disabled {
+  color: #555;
+  border-color: #2a2a2a !important;
+  cursor: not-allowed;
+}
+
+/* ----- Name-collision validation ----- */
+
+.dance-editor__form input.dance-editor__input--error {
+  background: rgba(196, 60, 60, 0.18);
+  border-color: #c43c3c;
+}
+
+.dance-editor__label-error {
+  color: #e07070;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 8px;
 }

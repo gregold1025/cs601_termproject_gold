@@ -1,5 +1,13 @@
 // MoveForm — single form panel covering all editable fields of a Move.
 // Pose state is driven by the on-character handles, not the form.
+//
+// Name validation: command names live in one flat namespace (primary
+// and secondary both resolve as commands), so on any save attempt the
+// editor checks both fields against the library. A colliding field is
+// highlighted light red with a hint next to its label. The secondary
+// field is optional — empty is always fine; it's only validated when
+// filled. (Same pattern as the optional-but-validated email field from
+// the class form exercise.)
 
 import React from "react";
 import {
@@ -9,6 +17,11 @@ import {
   ROTATION_Z_STEP,
 } from "../../data/characters/dance";
 
+export type NameErrors = {
+  primary: boolean;
+  secondary: boolean;
+};
+
 export type MoveFormProps = {
   primary: string;
   secondary: string;
@@ -17,15 +30,18 @@ export type MoveFormProps = {
   rotationZ: number;
   editing: boolean;
   canSave: boolean;
+  nameErrors: NameErrors;
   onPrimaryChange: (value: string) => void;
   onSecondaryChange: (value: string) => void;
   onSpeedChange: (value: number) => void;
   onRotationYChange: (value: number) => void;
   onRotationZChange: (value: number) => void;
   onSave: () => void;
+  onSaveAsNew: () => void;
   onPlay: () => void;
-  onResetOrientation: () => void;
-  onCancelEdit: () => void;
+  // Context-dependent reset: editing → revert draft to the saved move's
+  // values; new move → return the ragdoll to the default pose.
+  onResetPose: () => void;
 };
 
 export function MoveForm({
@@ -36,15 +52,16 @@ export function MoveForm({
   rotationZ,
   editing,
   canSave,
+  nameErrors,
   onPrimaryChange,
   onSecondaryChange,
   onSpeedChange,
   onRotationYChange,
   onRotationZChange,
   onSave,
+  onSaveAsNew,
   onPlay,
-  onResetOrientation,
-  onCancelEdit,
+  onResetPose,
 }: MoveFormProps) {
   return (
     <form
@@ -55,10 +72,18 @@ export function MoveForm({
       }}
     >
       <div className="dance-editor__form-row">
-        <label htmlFor="move-primary">Primary command</label>
+        <label htmlFor="move-primary">
+          Primary command
+          {nameErrors.primary && (
+            <span className="dance-editor__label-error">
+              Please select new name
+            </span>
+          )}
+        </label>
         <input
           id="move-primary"
           type="text"
+          className={nameErrors.primary ? "dance-editor__input--error" : ""}
           value={primary}
           onChange={(e) => onPrimaryChange(e.target.value)}
           placeholder="wave"
@@ -66,10 +91,18 @@ export function MoveForm({
         />
       </div>
       <div className="dance-editor__form-row">
-        <label htmlFor="move-secondary">Secondary command (optional)</label>
+        <label htmlFor="move-secondary">
+          Secondary command (optional)
+          {nameErrors.secondary && (
+            <span className="dance-editor__label-error">
+              Please select new command
+            </span>
+          )}
+        </label>
         <input
           id="move-secondary"
           type="text"
+          className={nameErrors.secondary ? "dance-editor__input--error" : ""}
           value={secondary}
           onChange={(e) => onSecondaryChange(e.target.value)}
           placeholder="w"
@@ -95,7 +128,7 @@ export function MoveForm({
       </div>
       <div className="dance-editor__rotation-row">
         <div className="dance-editor__form-row">
-          <label htmlFor="rot-y">Rotation Y (½ turns)</label>
+          <label htmlFor="rot-y">Rotation Y (turns)</label>
           <input
             id="rot-y"
             type="number"
@@ -118,10 +151,14 @@ export function MoveForm({
       <button
         type="button"
         className="dance-editor__reset"
-        onClick={onResetOrientation}
-        title="Snap the character back to its upright resting orientation"
+        onClick={onResetPose}
+        title={
+          editing
+            ? "Revert all fields to this move's saved values"
+            : "Return the ragdoll to the default pose"
+        }
       >
-        ↻ Reset orientation
+        ↻ Reset pose
       </button>
       <div className="dance-editor__form-actions">
         <button
@@ -134,11 +171,12 @@ export function MoveForm({
         {editing && (
           <button
             type="button"
-            className="dance-editor__cancel-edit"
-            onClick={onCancelEdit}
-            title="Discard changes and start a fresh new move"
+            className="dance-editor__save-as-new"
+            onClick={onSaveAsNew}
+            disabled={!canSave}
+            title="Save these edits as a brand-new move (the original stays untouched)"
           >
-            × Cancel edit
+            + Save as new Move
           </button>
         )}
         <button

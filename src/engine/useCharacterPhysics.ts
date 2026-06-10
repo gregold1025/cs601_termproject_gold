@@ -28,6 +28,9 @@ export type CharacterPhysics = {
   setMovingLeft: (moving: boolean) => void;
   setMovingRight: (moving: boolean) => void;
   jump: () => void;
+  // One-shot velocity impulse (px/s), added to current velocity.
+  // Impulses are additive: firing two in quick succession stacks them.
+  applyImpulse: (vx: number, vy: number) => void;
 };
 
 const DEFAULTS = {
@@ -53,12 +56,16 @@ export function useCharacterPhysics(config: PhysicsConfig = {}): CharacterPhysic
   const [position, setPosition] = useState<Vec2>({ ...initial });
 
   useGameLoop((dt) => {
-    // Horizontal velocity follows intent. If both or neither held, decay.
+    // Horizontal velocity follows intent. With no intent held, friction
+    // decays vx — but only on the ground. Airborne horizontal velocity
+    // persists, so impulse launches travel as real projectile arcs
+    // instead of stalling mid-air.
+    const grounded = positionRef.current.y >= 0;
     if (intentRef.current.left && !intentRef.current.right) {
       velocityRef.current.x = -moveSpeed;
     } else if (intentRef.current.right && !intentRef.current.left) {
       velocityRef.current.x = moveSpeed;
-    } else {
+    } else if (grounded) {
       velocityRef.current.x *= Math.max(0, 1 - friction * dt);
     }
 
@@ -102,6 +109,14 @@ export function useCharacterPhysics(config: PhysicsConfig = {}): CharacterPhysic
       if (positionRef.current.y >= 0) {
         velocityRef.current.y = -jumpSpeed;
       }
+    },
+    applyImpulse: (vx, vy) => {
+      // Additive — a move's force vector stacks onto whatever velocity
+      // the character already has (mid-walk, mid-jump, mid-launch).
+      // A downward impulse while grounded is absorbed by the ground
+      // clamp on the next tick; airborne, it shoots the character down.
+      velocityRef.current.x += vx;
+      velocityRef.current.y += vy;
     },
   };
 }

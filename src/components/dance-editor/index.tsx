@@ -7,10 +7,16 @@ import { Avatar } from "../../data/avatar";
 import { CHARACTER_RIGS } from "../../data/characters";
 import { ADJECTIVE_PALETTES } from "../../data/characters/palette";
 import { NEUTRAL_POSE, CharacterPose } from "../../data/characters/types";
-import { Move, newMoveId, SPEED_DEFAULT } from "../../data/characters/dance";
+import {
+  Move,
+  newMoveId,
+  isCommandTaken,
+  SPEED_DEFAULT,
+  MOVE_LIBRARY_KEY,
+} from "../../data/characters/dance";
 import { Character, characterDisplayBox } from "../Character";
 import { MoveLibrary } from "./MoveLibrary";
-import { MoveForm } from "./MoveForm";
+import { MoveForm, NameErrors } from "./MoveForm";
 import { PoseHandles } from "./PoseHandles";
 import { TransformHandles } from "./TransformHandles";
 import { useMovePlayer } from "../../engine/useMovePlayer";
@@ -18,7 +24,6 @@ import { useLocalStorage } from "../../engine/useLocalStorage";
 import "./dance-editor.css";
 
 const CHARACTER_DISPLAY_WIDTH = 380;
-const LIBRARY_KEY = "ugp.move-library.v1";
 
 type ForceVector = { x: number; y: number };
 
@@ -50,7 +55,7 @@ export type DanceEditorViewProps = {
 };
 
 export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
-  const [library, setLibrary] = useLocalStorage<Move[]>(LIBRARY_KEY, []);
+  const [library, setLibrary] = useLocalStorage<Move[]>(MOVE_LIBRARY_KEY, []);
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
 
   const player = useMovePlayer({ basePose: NEUTRAL_POSE });
@@ -72,19 +77,48 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
 
   const canSave = draft.primary.trim().length > 0;
 
-  const resetDraft = () => setDraft(EMPTY_DRAFT);
+  // Name-collision flags, set on a failed save attempt. Each clears as
+  // soon as the user edits the offending field.
+  const [nameErrors, setNameErrors] = useState<NameErrors>({
+    primary: false,
+    secondary: false,
+  });
+  const NO_ERRORS: NameErrors = { primary: false, secondary: false };
+
+  const resetDraft = () => {
+    setDraft(EMPTY_DRAFT);
+    setNameErrors(NO_ERRORS);
+  };
+
+  // Check the draft's names against the library. excludeId skips the
+  // move being updated (keeping your own name isn't a collision);
+  // pass null for save-as-new, where colliding with the source move's
+  // name forces the user to pick a fresh one.
+  const checkNames = (excludeId: string | null): NameErrors => ({
+    primary: isCommandTaken(draft.primary, library, excludeId),
+    secondary:
+      draft.secondary.trim().length > 0 &&
+      isCommandTaken(draft.secondary, library, excludeId),
+  });
+
+  const draftPayload = (): Omit<Move, "id"> => ({
+    primary: draft.primary.trim(),
+    secondary: draft.secondary.trim() || undefined,
+    speed: draft.speed,
+    targetPose: draft.targetPose,
+    forceVector: draft.forceVector,
+    rotationY: draft.rotationY || undefined,
+    rotationZ: draft.rotationZ || undefined,
+  });
 
   const handleSave = () => {
     if (!canSave) return;
-    const payload: Omit<Move, "id"> = {
-      primary: draft.primary.trim(),
-      secondary: draft.secondary.trim() || undefined,
-      speed: draft.speed,
-      targetPose: draft.targetPose,
-      forceVector: draft.forceVector,
-      rotationY: draft.rotationY || undefined,
-      rotationZ: draft.rotationZ || undefined,
-    };
+    const errors = checkNames(draft.editingId);
+    if (errors.primary || errors.secondary) {
+      setNameErrors(errors);
+      return;
+    }
+    const payload = draftPayload();
     if (draft.editingId) {
       setLibrary((prev) =>
         prev.map((m) =>
@@ -97,7 +131,22 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
     resetDraft();
   };
 
+  // Save the current edits as a brand-new move; the original stays as
+  // it was. The names must be fresh — the source move's own names count
+  // as collisions here, so the user is prompted to rename.
+  const handleSaveAsNew = () => {
+    if (!canSave) return;
+    const errors = checkNames(null);
+    if (errors.primary || errors.secondary) {
+      setNameErrors(errors);
+      return;
+    }
+    setLibrary((prev) => [...prev, { id: newMoveId(), ...draftPayload() }]);
+    resetDraft();
+  };
+
   const handleEdit = (move: Move) => {
+    setNameErrors(NO_ERRORS);
     setDraft({
       primary: move.primary,
       secondary: move.secondary ?? "",
@@ -108,6 +157,30 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
       rotationZ: move.rotationZ ?? 0,
       editingId: move.id,
     });
+  };
+
+  // Context-dependent reset. Editing → revert the whole draft to the
+  // saved move's values. New move → return the ragdoll (pose, force,
+  // rotations) to defaults, keeping any typed names. Either way, stop
+  // any in-flight preview and snap orientation home.
+  const handleResetPose = () => {
+    player.resetOrientation();
+    setNameErrors(NO_ERRORS);
+    if (draft.editingId) {
+      const source = library.find((m) => m.id === draft.editingId);
+      if (source) {
+        handleEdit(source);
+        return;
+      }
+      // Source move vanished mid-edit — fall through to defaults.
+    }
+    setDraft((d) => ({
+      ...d,
+      targetPose: NEUTRAL_POSE,
+      forceVector: undefined,
+      rotationY: 0,
+      rotationZ: 0,
+    }));
   };
 
   const handleDelete = (move: Move) => {
@@ -158,6 +231,7 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
         onPlay={handlePlayMove}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onNew={resetDraft}
       />
 
       <main className="dance-editor__main">
@@ -207,8 +281,15 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
           rotationZ={draft.rotationZ}
           editing={draft.editingId !== null}
           canSave={canSave}
-          onPrimaryChange={(primary) => setDraft({ ...draft, primary })}
-          onSecondaryChange={(secondary) => setDraft({ ...draft, secondary })}
+          nameErrors={nameErrors}
+          onPrimaryChange={(primary) => {
+            setDraft({ ...draft, primary });
+            setNameErrors((e) => ({ ...e, primary: false }));
+          }}
+          onSecondaryChange={(secondary) => {
+            setDraft({ ...draft, secondary });
+            setNameErrors((e) => ({ ...e, secondary: false }));
+          }}
           onSpeedChange={(speed) => setDraft({ ...draft, speed })}
           onRotationYChange={(rotationY) =>
             setDraft({ ...draft, rotationY })
@@ -217,9 +298,9 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
             setDraft({ ...draft, rotationZ })
           }
           onSave={handleSave}
+          onSaveAsNew={handleSaveAsNew}
           onPlay={handlePlayDraft}
-          onResetOrientation={player.resetOrientation}
-          onCancelEdit={resetDraft}
+          onResetPose={handleResetPose}
         />
       </main>
     </div>
