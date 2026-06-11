@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./App.css";
 import { AnchorMeasure } from "./dev/AnchorMeasure";
 import { PlaygroundView } from "./components/PlaygroundView";
-import { DanceEditorView } from "./components/dance-editor";
+import { DanceLab } from "./components/dance-lab";
 import { BottomBar } from "./components/BottomBar";
 import { Avatar } from "./data/avatar";
 
@@ -24,7 +24,7 @@ const FRIEND_AVATAR: Avatar = {
   biome: "jungle",
 };
 
-type View = "playground" | "danceEditor";
+type View = "playground" | "danceLab";
 
 function App() {
   const [committedAvatar, setCommittedAvatar] =
@@ -43,11 +43,11 @@ function App() {
             committedAvatar={committedAvatar}
             setCommittedAvatar={setCommittedAvatar}
           />
-          <BottomBar onOpenDanceEditor={() => setCurrentView("danceEditor")} />
+          <BottomBar onOpenDanceLab={() => setCurrentView("danceLab")} />
         </>
       )}
-      {currentView === "danceEditor" && (
-        <DanceEditorView
+      {currentView === "danceLab" && (
+        <DanceLab
           avatar={committedAvatar}
           onBack={() => setCurrentView("playground")}
         />

@@ -23,18 +23,18 @@ export function MoveLibrary({
   onNew,
 }: MoveLibraryProps) {
   return (
-    <aside className="dance-editor__library">
-      <h2 className="dance-editor__library-title">Move Library</h2>
+    <aside className="dance-lab__library">
+      <h2 className="dance-lab__library-title">Move Library</h2>
       <button
         type="button"
-        className="dance-editor__new-move"
+        className="dance-lab__new-move"
         onClick={onNew}
         title="Clear the form and start a fresh move"
       >
         + Make new move
       </button>
       {moves.length === 0 ? (
-        <div className="dance-editor__library-empty">
+        <div className="dance-lab__library-empty">
           No moves yet — save one to start your dictionary.
         </div>
       ) : (

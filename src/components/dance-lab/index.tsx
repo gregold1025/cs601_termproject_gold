@@ -1,8 +1,15 @@
-// DanceEditorView — artifact editor. One Move per saved command,
-// edited via on-character handles (pose limbs + force vector) plus a
-// flat form (primary, secondary, speed, rotation Y, rotation Z).
+// DanceLab — artifact editor. One Move per saved command, edited via
+// on-character handles (pose limbs + force vector) plus a flat form
+// (primary, secondary, speed, rotation Y, rotation Z).
+//
+// The character here is the SAME physics body as the playground — same
+// engines, same constants, same launch behavior. The lab's one extra
+// rule: when a move has finished playing AND the body is grounded and
+// settled, it snaps back to center stage. No special-cased motion, no
+// cosmetic offsets — physics is unanimous; only the going-home reset is
+// lab-specific.
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar } from "../../data/avatar";
 import { CHARACTER_RIGS } from "../../data/characters";
 import { ADJECTIVE_PALETTES } from "../../data/characters/palette";
@@ -14,14 +21,16 @@ import {
   SPEED_DEFAULT,
   MOVE_LIBRARY_KEY,
 } from "../../data/characters/dance";
-import { Character, characterDisplayBox } from "../Character";
+import { Character } from "../Character";
 import { MoveLibrary } from "./MoveLibrary";
 import { MoveForm, NameErrors } from "./MoveForm";
 import { PoseHandles } from "./PoseHandles";
-import { TransformHandles } from "./TransformHandles";
-import { useMovePlayer } from "../../engine/useMovePlayer";
+import { ForceHandle } from "./ForceHandle";
+import { useCharacterPhysics } from "../../engine/useCharacterPhysics";
+import { useCharacterArticulation } from "../../engine/useCharacterArticulation";
+import { useMoveSequencer } from "../../engine/useMoveSequencer";
 import { useLocalStorage } from "../../engine/useLocalStorage";
-import "./dance-editor.css";
+import "./dance-lab.css";
 
 const CHARACTER_DISPLAY_WIDTH = 380;
 
@@ -49,31 +58,45 @@ const EMPTY_DRAFT: Draft = {
   editingId: null,
 };
 
-export type DanceEditorViewProps = {
+export type DanceLabProps = {
   avatar: Avatar;
   onBack: () => void;
 };
 
-export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
+export function DanceLab({ avatar, onBack }: DanceLabProps) {
   const [library, setLibrary] = useLocalStorage<Move[]>(MOVE_LIBRARY_KEY, []);
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
 
-  const player = useMovePlayer({ basePose: NEUTRAL_POSE });
+  // The same engines as the playground — one motion model everywhere.
+  const physics = useCharacterPhysics();
+  const articulation = useCharacterArticulation({ basePose: NEUTRAL_POSE });
+  const sequencer = useMoveSequencer({
+    articulation,
+    applyImpulse: physics.applyImpulse,
+    getAltitude: () => physics.position.y,
+  });
+
+  // The lab's snap-home rule (three-part): the move is DONE playing,
+  // the body is GROUNDED, and it has SETTLED (velocity ~0). A downward
+  // force settles instantly but waits out the pose window; a horizontal
+  // skid waits for friction to stop it; a launch waits until landing.
+  useEffect(() => {
+    if (
+      !sequencer.isPlaying &&
+      physics.resting &&
+      (physics.position.x !== 0 || physics.position.y !== 0)
+    ) {
+      physics.teleport(0, 0);
+    }
+  }, [sequencer.isPlaying, physics]);
 
   const rig = CHARACTER_RIGS[avatar.animal];
   const palette = ADJECTIVE_PALETTES[avatar.adjective];
 
-  // SVG units → CSS pixels for the preview translate.
-  const box = characterDisplayBox(avatar.animal, CHARACTER_DISPLAY_WIDTH);
-  const cssScale = box.display.width / box.viewBox.width;
-  const cssOffset = {
-    x: player.currentOffset.x * cssScale,
-    y: player.currentOffset.y * cssScale,
-  };
-  const rotation = player.currentRotation;
-  const transform = `translate(${cssOffset.x}px, ${cssOffset.y}px) rotateY(${rotation.y * 360}deg) rotateZ(${rotation.z * 360}deg)`;
+  const rotation = articulation.currentRotation;
+  const transform = `translate(${physics.position.x}px, ${physics.position.y}px) rotateY(${rotation.y * 360}deg) rotateZ(${rotation.z * 360}deg)`;
 
-  const displayPose = player.currentPose ?? draft.targetPose;
+  const displayPose = articulation.currentPose ?? draft.targetPose;
 
   const canSave = draft.primary.trim().length > 0;
 
@@ -159,12 +182,18 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
     });
   };
 
+  // Stop any preview and bring the body + orientation home.
+  const stopPreview = () => {
+    sequencer.stop();
+    articulation.reset();
+    physics.teleport(0, 0);
+  };
+
   // Context-dependent reset. Editing → revert the whole draft to the
   // saved move's values. New move → return the ragdoll (pose, force,
-  // rotations) to defaults, keeping any typed names. Either way, stop
-  // any in-flight preview and snap orientation home.
+  // rotations) to defaults, keeping any typed names.
   const handleResetPose = () => {
-    player.resetOrientation();
+    stopPreview();
     setNameErrors(NO_ERRORS);
     if (draft.editingId) {
       const source = library.find((m) => m.id === draft.editingId);
@@ -172,7 +201,9 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
         handleEdit(source);
         return;
       }
-      // Source move vanished mid-edit — fall through to defaults.
+      // Source move vanished mid-edit — fall through to defaults, and
+      // clear the dangling editingId so a later save creates a fresh
+      // move instead of silently no-op-updating a ghost.
     }
     setDraft((d) => ({
       ...d,
@@ -180,6 +211,7 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
       forceVector: undefined,
       rotationY: 0,
       rotationZ: 0,
+      editingId: null,
     }));
   };
 
@@ -188,38 +220,37 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
     if (draft.editingId === move.id) resetDraft();
   };
 
+  // Preview the in-progress draft as a transient (unsaved) Move.
   const handlePlayDraft = () => {
-    player.play({
-      targetPose: draft.targetPose,
-      forceVector: draft.forceVector,
-      rotationY: draft.rotationY,
-      rotationZ: draft.rotationZ,
-      speed: draft.speed,
-    });
+    sequencer.runChain([
+      {
+        id: "__draft__",
+        primary: draft.primary.trim() || "draft",
+        speed: draft.speed,
+        targetPose: draft.targetPose,
+        forceVector: draft.forceVector,
+        rotationY: draft.rotationY || undefined,
+        rotationZ: draft.rotationZ || undefined,
+      },
+    ]);
   };
 
   const handlePlayMove = (move: Move) => {
-    player.play({
-      targetPose: move.targetPose,
-      forceVector: move.forceVector,
-      rotationY: move.rotationY ?? 0,
-      rotationZ: move.rotationZ ?? 0,
-      speed: move.speed,
-    });
+    sequencer.runChain([move]);
   };
 
   return (
-    <div className="dance-editor">
-      <header className="dance-editor__header">
+    <div className="dance-lab">
+      <header className="dance-lab__header">
         <button
           type="button"
-          className="dance-editor__back"
+          className="dance-lab__back"
           onClick={onBack}
         >
           ← Back to playground
         </button>
         <div
-          className="dance-editor__disco"
+          className="dance-lab__disco"
           aria-hidden="true"
           title="Disco ball"
         />
@@ -234,11 +265,11 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
         onNew={resetDraft}
       />
 
-      <main className="dance-editor__main">
-        <div className="dance-editor__stage">
-          <div className="dance-editor__pedestal" aria-hidden="true" />
+      <main className="dance-lab__main">
+        <div className="dance-lab__stage">
+          <div className="dance-lab__pedestal" aria-hidden="true" />
           <div
-            className="dance-editor__character-wrap"
+            className="dance-lab__character-wrap"
             style={{ transform }}
           >
             <Character
@@ -248,7 +279,7 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
               palette={palette}
               width={CHARACTER_DISPLAY_WIDTH}
             />
-            {!player.isPlaying && (
+            {!sequencer.isPlaying && (
               <>
                 <PoseHandles
                   animal={avatar.animal}
@@ -259,7 +290,7 @@ export function DanceEditorView({ avatar, onBack }: DanceEditorViewProps) {
                   }
                   width={CHARACTER_DISPLAY_WIDTH}
                 />
-                <TransformHandles
+                <ForceHandle
                   animal={avatar.animal}
                   rig={rig}
                   forceVector={draft.forceVector}

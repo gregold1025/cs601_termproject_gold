@@ -1,7 +1,7 @@
-/* Dance editor styles. Black backdrop, two-column layout:
+/* Dance Lab styles. Black backdrop, two-column layout:
    library on the left, character + form on the right. */
 
-.dance-editor {
+.dance-lab {
   position: relative;
   width: 100%;
   min-height: 100vh;
@@ -19,7 +19,7 @@
 
 /* ----- Header (back button + disco ball) ----- */
 
-.dance-editor__header {
+.dance-lab__header {
   grid-area: header;
   display: flex;
   justify-content: space-between;
@@ -28,7 +28,7 @@
   border-bottom: 1px solid #1a1a1a;
 }
 
-.dance-editor__back {
+.dance-lab__back {
   background: transparent;
   color: #f0f0f0;
   border: 1px solid #555;
@@ -39,7 +39,7 @@
   font-family: inherit;
 }
 
-.dance-editor__back:hover {
+.dance-lab__back:hover {
   background: #1a1a1a;
 }
 
@@ -49,7 +49,7 @@
   }
 }
 
-.dance-editor__disco {
+.dance-lab__disco {
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -68,14 +68,14 @@
 
 /* ----- Library (left column) ----- */
 
-.dance-editor__library {
+.dance-lab__library {
   grid-area: library;
   border-right: 1px solid #1a1a1a;
   padding: 16px;
   overflow-y: auto;
 }
 
-.dance-editor__library-title {
+.dance-lab__library-title {
   margin: 0 0 12px 0;
   font-size: 13px;
   text-transform: uppercase;
@@ -83,13 +83,13 @@
   color: #888;
 }
 
-.dance-editor__library-empty {
+.dance-lab__library-empty {
   font-size: 13px;
   color: #555;
   font-style: italic;
 }
 
-.dance-editor__new-move {
+.dance-lab__new-move {
   width: 100%;
   background: transparent;
   color: #aaa;
@@ -107,7 +107,7 @@
     background 0.15s ease;
 }
 
-.dance-editor__new-move:hover {
+.dance-lab__new-move:hover {
   color: #f0f0f0;
   border-color: #666;
   background: #161616;
@@ -181,7 +181,7 @@
 
 /* ----- Main column (character + form) ----- */
 
-.dance-editor__main {
+.dance-lab__main {
   grid-area: main;
   display: flex;
   flex-direction: column;
@@ -190,7 +190,7 @@
   gap: 16px;
 }
 
-.dance-editor__stage {
+.dance-lab__stage {
   position: relative;
   width: 100%;
   flex: 1;
@@ -203,7 +203,7 @@
   perspective: 800px;
 }
 
-.dance-editor__pedestal {
+.dance-lab__pedestal {
   position: absolute;
   bottom: 64px;
   left: 50%;
@@ -218,7 +218,7 @@
   z-index: 0;
 }
 
-.dance-editor__character-wrap {
+.dance-lab__character-wrap {
   position: relative;
   display: inline-block;
 }
@@ -279,7 +279,7 @@
 
 /* ----- Form ----- */
 
-.dance-editor__form {
+.dance-lab__form {
   width: 100%;
   max-width: 480px;
   background: #141414;
@@ -291,20 +291,20 @@
   gap: 12px;
 }
 
-.dance-editor__form-row {
+.dance-lab__form-row {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.dance-editor__form label {
+.dance-lab__form label {
   font-size: 12px;
   color: #888;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.dance-editor__form input {
+.dance-lab__form input {
   background: #0a0a0a;
   border: 1px solid #2a2a2a;
   border-radius: 4px;
@@ -314,18 +314,18 @@
   font-size: 14px;
 }
 
-.dance-editor__form input:focus {
+.dance-lab__form input:focus {
   outline: none;
   border-color: #888;
 }
 
-.dance-editor__speed-value {
+.dance-lab__speed-value {
   color: #aaa;
   font-weight: normal;
   margin-left: 6px;
 }
 
-.dance-editor__form input[type="range"] {
+.dance-lab__form input[type="range"] {
   -webkit-appearance: none;
   background: #0a0a0a;
   border-radius: 4px;
@@ -334,7 +334,7 @@
   border: 1px solid #2a2a2a;
 }
 
-.dance-editor__form input[type="range"]::-webkit-slider-thumb {
+.dance-lab__form input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 16px;
   height: 16px;
@@ -343,7 +343,7 @@
   cursor: grab;
 }
 
-.dance-editor__form input[type="range"]::-moz-range-thumb {
+.dance-lab__form input[type="range"]::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border: none;
@@ -352,22 +352,22 @@
   cursor: grab;
 }
 
-.dance-editor__rotation-row {
+.dance-lab__rotation-row {
   display: flex;
   gap: 12px;
 }
 
-.dance-editor__rotation-row .dance-editor__form-row {
+.dance-lab__rotation-row .dance-lab__form-row {
   flex: 1;
 }
 
-.dance-editor__form-actions {
+.dance-lab__form-actions {
   display: flex;
   gap: 8px;
   margin-top: 8px;
 }
 
-.dance-editor__form-actions button {
+.dance-lab__form-actions button {
   flex: 1;
   padding: 10px 16px;
   border: none;
@@ -378,32 +378,32 @@
   cursor: pointer;
 }
 
-.dance-editor__save {
+.dance-lab__save {
   background: #5a8a3c;
   color: #fff;
 }
 
-.dance-editor__save:hover {
+.dance-lab__save:hover {
   background: #6a9c4c;
 }
 
-.dance-editor__save:disabled {
+.dance-lab__save:disabled {
   background: #2a3a1c;
   color: #888;
   cursor: not-allowed;
 }
 
-.dance-editor__play {
+.dance-lab__play {
   background: #2a3437;
   color: #fff;
   border: 1px solid #3b474b !important;
 }
 
-.dance-editor__play:hover {
+.dance-lab__play:hover {
   background: #354247;
 }
 
-.dance-editor__reset {
+.dance-lab__reset {
   background: transparent;
   color: #aaa;
   border: 1px dashed #3a3a3a;
@@ -415,24 +415,24 @@
   align-self: flex-start;
 }
 
-.dance-editor__reset:hover {
+.dance-lab__reset:hover {
   color: #f0f0f0;
   border-color: #555;
   background: #1a1a1a;
 }
 
-.dance-editor__save-as-new {
+.dance-lab__save-as-new {
   background: transparent;
   color: #9ad7a0;
   border: 1px solid #3f6a45 !important;
   font-family: inherit;
 }
 
-.dance-editor__save-as-new:hover {
+.dance-lab__save-as-new:hover {
   background: #1d2a1f;
 }
 
-.dance-editor__save-as-new:disabled {
+.dance-lab__save-as-new:disabled {
   color: #555;
   border-color: #2a2a2a !important;
   cursor: not-allowed;
@@ -440,12 +440,12 @@
 
 /* ----- Name-collision validation ----- */
 
-.dance-editor__form input.dance-editor__input--error {
+.dance-lab__form input.dance-lab__input--error {
   background: rgba(196, 60, 60, 0.18);
   border-color: #c43c3c;
 }
 
-.dance-editor__label-error {
+.dance-lab__label-error {
   color: #e07070;
   text-transform: none;
   letter-spacing: 0;

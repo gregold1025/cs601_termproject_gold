@@ -1,23 +1,23 @@
 // BottomBar — fixed strip at the bottom of the screen with cards for
-// each artifact editor. For now there's only the Dance editor; future
-// artifact editors append more cards.
+// each artifact lab. For now there's only the Dance Lab; future
+// artifact labs append more cards.
 
 import React from "react";
 import "./BottomBar.css";
 
 export type BottomBarProps = {
-  onOpenDanceEditor: () => void;
+  onOpenDanceLab: () => void;
 };
 
-export function BottomBar({ onOpenDanceEditor }: BottomBarProps) {
+export function BottomBar({ onOpenDanceLab }: BottomBarProps) {
   return (
     <div className="bottom-bar">
       <button
         type="button"
-        onClick={onOpenDanceEditor}
+        onClick={onOpenDanceLab}
         className="bottom-bar__card"
       >
-        <span className="bottom-bar__card-label">Dance Editor</span>
+        <span className="bottom-bar__card-label">Dance Lab</span>
       </button>
     </div>
   );

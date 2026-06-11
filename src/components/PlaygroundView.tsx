@@ -1,13 +1,15 @@
 // PlaygroundView — the main avatar playground.
 //
-// The character has two parallel control inputs that compose:
-//   1. Physics (arrow keys / WASD) — drives world position via
-//      useCharacterPhysics. Direct, real-time, low-level.
-//   2. Commands (typed words) — drives pose / dance offset / rotation
-//      via useMovePlayer against the saved move library. Symbolic,
-//      named, high-level.
-// Physics owns world position; the move player owns pose, launch
-// offset, and rotation. The character's final placement is the sum.
+// The character is ONE physics body with two control inputs:
+//   1. Direct (arrow keys / WASD) — movement intent + jump, straight
+//      into useCharacterPhysics.
+//   2. Symbolic (typed commands) — resolveCommandChain parses the input
+//      into a Move[]; useMoveSequencer conducts it, cueing physics
+//      impulses and articulation (pose/rotation) per link.
+//
+// Placement comes from physics alone. Articulation only shapes and
+// rotates the body — it never moves it; forces are real impulses that
+// persist (the character lands wherever physics says).
 //
 // The command surface: a frosted input fixed bottom-center (space or
 // enter executes; the runner resolves against the library and flashes
@@ -16,25 +18,22 @@
 // disabled so arrows edit text instead of walking the character.
 
 import React, { useEffect, useState } from "react";
-import { Character, characterDisplayBox } from "./Character";
+import { Character } from "./Character";
 import { Playground } from "./Playground";
 import { CustomizeAvatar } from "./customize-avatar";
 import { CommandInput } from "./CommandInput";
 import { CommandHistory } from "./CommandHistory";
 import { useCharacterPhysics } from "../engine/useCharacterPhysics";
+import { useCharacterArticulation } from "../engine/useCharacterArticulation";
+import { useMoveSequencer } from "../engine/useMoveSequencer";
 import { useKeyboardInput } from "../engine/useKeyboardInput";
-import { useMovePlayer } from "../engine/useMovePlayer";
 import { useCommandRunner } from "../engine/useCommandRunner";
 import { useLocalStorage } from "../engine/useLocalStorage";
 import { Avatar } from "../data/avatar";
 import { CHARACTER_RIGS } from "../data/characters";
 import { NEUTRAL_POSE } from "../data/characters/types";
 import { ADJECTIVE_PALETTES } from "../data/characters/palette";
-import {
-  Move,
-  MOVE_LIBRARY_KEY,
-  FORCE_STRENGTH_MULTIPLIER,
-} from "../data/characters/dance";
+import { Move, MOVE_LIBRARY_KEY } from "../data/characters/dance";
 
 // All biomes share a 3500px world width; half = how far the character
 // can roam to either side of world center.
@@ -51,53 +50,24 @@ export function PlaygroundView({
 }: PlaygroundViewProps) {
   const [draftAvatar, setDraftAvatar] = useState<Avatar | null>(null);
 
+  // The two engines + the conductor.
   const physics = useCharacterPhysics({
     bounds: { minX: -WORLD_HALF_WIDTH, maxX: WORLD_HALF_WIDTH },
   });
+  const articulation = useCharacterArticulation({ basePose: NEUTRAL_POSE });
+  const sequencer = useMoveSequencer({
+    articulation,
+    applyImpulse: physics.applyImpulse,
+    getAltitude: () => physics.position.y,
+  });
+
   const customizing = draftAvatar !== null;
 
   // Move library — written by the dance lab, read here. Views never
   // mount simultaneously, so the mount-time read is always fresh.
   const [library] = useLocalStorage<Move[]>(MOVE_LIBRARY_KEY, []);
 
-  // Move player — same engine the dance lab previews with.
-  const player = useMovePlayer({ basePose: NEUTRAL_POSE });
-
-  // Split execution across the two engines:
-  //   - forceVector → a real physics impulse. It persists: the character
-  //     flies through the world, gravity and ground do their thing, and
-  //     they LAND wherever physics says — no return-to-start. The lab's
-  //     preview return-home is preview-only.
-  //   - pose + rotation + speed → the move player (visual articulation).
-  //     forceVector is deliberately NOT passed to the player here, or it
-  //     would double-apply as a cosmetic launch offset on top of the
-  //     physics one.
-  // Dot-chains ("mw.wm") arrive as an ordered Move[]; each link becomes
-  // a sequence item whose onStart fires that move's impulse at the
-  // moment the link begins — not all-at-once on submit.
-  // Units note: the saved vector is in the character's SVG viewBox units;
-  // we treat them 1:1 as world px/s, which lands a max-radius drag near
-  // jump strength. Tune FORCE_STRENGTH_MULTIPLIER to taste.
-  const playMoves = (moves: Move[]) => {
-    player.playSequence(
-      moves.map((move) => ({
-        args: {
-          targetPose: move.targetPose,
-          rotationY: move.rotationY ?? 0,
-          rotationZ: move.rotationZ ?? 0,
-          speed: move.speed,
-        },
-        onStart: () => {
-          if (move.forceVector) {
-            physics.applyImpulse(
-              move.forceVector.x * FORCE_STRENGTH_MULTIPLIER,
-              move.forceVector.y * FORCE_STRENGTH_MULTIPLIER,
-            );
-          }
-        },
-      })),
-    );
-  };
+  const playMoves = (moves: Move[]) => sequencer.runChain(moves);
 
   const runner = useCommandRunner(library, playMoves);
 
@@ -127,23 +97,15 @@ export function PlaygroundView({
   const rig = CHARACTER_RIGS[currentAvatar.animal];
   const palette = ADJECTIVE_PALETTES[currentAvatar.adjective];
 
-  // Move-player offset is in the character's SVG viewBox units; the
-  // playground positions in CSS pixels. Convert via the character's
-  // default display scale, then sum with the physics position.
-  const box = characterDisplayBox(currentAvatar.animal);
-  const cssScale = box.display.width / box.viewBox.width;
-  const characterX = physics.position.x + player.currentOffset.x * cssScale;
-  const characterY = physics.position.y + player.currentOffset.y * cssScale;
-
-  const rotation = player.currentRotation;
+  const rotation = articulation.currentRotation;
   const rotationTransform = `rotateY(${rotation.y * 360}deg) rotateZ(${rotation.z * 360}deg)`;
 
   return (
     <>
       <Playground
         biome={currentAvatar.biome}
-        characterX={characterX}
-        characterY={characterY}
+        characterX={physics.position.x}
+        characterY={physics.position.y}
         character={
           // Outer div supplies perspective so rotateY reads as a real
           // 3D flip (foreshortening) instead of a flat horizontal squish.
@@ -153,7 +115,7 @@ export function PlaygroundView({
               <Character
                 animal={currentAvatar.animal}
                 rig={rig}
-                pose={player.currentPose ?? NEUTRAL_POSE}
+                pose={articulation.currentPose ?? NEUTRAL_POSE}
                 palette={palette}
               />
             </div>

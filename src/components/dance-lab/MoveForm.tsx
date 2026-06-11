@@ -3,7 +3,7 @@
 //
 // Name validation: command names live in one flat namespace (primary
 // and secondary both resolve as commands), so on any save attempt the
-// editor checks both fields against the library. A colliding field is
+// lab checks both fields against the library. A colliding field is
 // highlighted light red with a hint next to its label. The secondary
 // field is optional — empty is always fine; it's only validated when
 // filled. (Same pattern as the optional-but-validated email field from
@@ -65,17 +65,17 @@ export function MoveForm({
 }: MoveFormProps) {
   return (
     <form
-      className="dance-editor__form"
+      className="dance-lab__form"
       onSubmit={(e) => {
         e.preventDefault();
         if (canSave) onSave();
       }}
     >
-      <div className="dance-editor__form-row">
+      <div className="dance-lab__form-row">
         <label htmlFor="move-primary">
           Primary command
           {nameErrors.primary && (
-            <span className="dance-editor__label-error">
+            <span className="dance-lab__label-error">
               Please select new name
             </span>
           )}
@@ -83,18 +83,18 @@ export function MoveForm({
         <input
           id="move-primary"
           type="text"
-          className={nameErrors.primary ? "dance-editor__input--error" : ""}
+          className={nameErrors.primary ? "dance-lab__input--error" : ""}
           value={primary}
           onChange={(e) => onPrimaryChange(e.target.value)}
           placeholder="wave"
           autoComplete="off"
         />
       </div>
-      <div className="dance-editor__form-row">
+      <div className="dance-lab__form-row">
         <label htmlFor="move-secondary">
           Secondary command (optional)
           {nameErrors.secondary && (
-            <span className="dance-editor__label-error">
+            <span className="dance-lab__label-error">
               Please select new command
             </span>
           )}
@@ -102,17 +102,17 @@ export function MoveForm({
         <input
           id="move-secondary"
           type="text"
-          className={nameErrors.secondary ? "dance-editor__input--error" : ""}
+          className={nameErrors.secondary ? "dance-lab__input--error" : ""}
           value={secondary}
           onChange={(e) => onSecondaryChange(e.target.value)}
           placeholder="w"
           autoComplete="off"
         />
       </div>
-      <div className="dance-editor__form-row">
+      <div className="dance-lab__form-row">
         <label htmlFor="move-speed">
           Speed{" "}
-          <span className="dance-editor__speed-value">
+          <span className="dance-lab__speed-value">
             {speed.toFixed(2)}×
           </span>
         </label>
@@ -126,8 +126,8 @@ export function MoveForm({
           onChange={(e) => onSpeedChange(Number(e.target.value))}
         />
       </div>
-      <div className="dance-editor__rotation-row">
-        <div className="dance-editor__form-row">
+      <div className="dance-lab__rotation-row">
+        <div className="dance-lab__form-row">
           <label htmlFor="rot-y">Rotation Y (turns)</label>
           <input
             id="rot-y"
@@ -137,7 +137,7 @@ export function MoveForm({
             onChange={(e) => onRotationYChange(Number(e.target.value) || 0)}
           />
         </div>
-        <div className="dance-editor__form-row">
+        <div className="dance-lab__form-row">
           <label htmlFor="rot-z">Rotation Z (turns)</label>
           <input
             id="rot-z"
@@ -150,7 +150,7 @@ export function MoveForm({
       </div>
       <button
         type="button"
-        className="dance-editor__reset"
+        className="dance-lab__reset"
         onClick={onResetPose}
         title={
           editing
@@ -160,10 +160,10 @@ export function MoveForm({
       >
         ↻ Reset pose
       </button>
-      <div className="dance-editor__form-actions">
+      <div className="dance-lab__form-actions">
         <button
           type="button"
-          className="dance-editor__play"
+          className="dance-lab__play"
           onClick={onPlay}
         >
           ▶ Play
@@ -171,7 +171,7 @@ export function MoveForm({
         {editing && (
           <button
             type="button"
-            className="dance-editor__save-as-new"
+            className="dance-lab__save-as-new"
             onClick={onSaveAsNew}
             disabled={!canSave}
             title="Save these edits as a brand-new move (the original stays untouched)"
@@ -181,7 +181,7 @@ export function MoveForm({
         )}
         <button
           type="submit"
-          className="dance-editor__save"
+          className="dance-lab__save"
           disabled={!canSave}
         >
           {editing ? "Update move" : "Save move"}

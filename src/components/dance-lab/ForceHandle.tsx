@@ -1,11 +1,11 @@
-// TransformHandles — draggable force vector handle for editing a
-// TransformMove's spatial impulse. Renders a dashed line from the body
-// center (centroid of the four shoulder/hip anchors) to a green handle.
+// ForceHandle — draggable handle for editing a Move's force vector.
+// Renders a dashed line from the body center (centroid of the four
+// shoulder/hip anchors) to a green handle.
 //
-// Handle position is clamped two ways:
-//   - Magnitude cap (MAX_FORCE_MAGNITUDE) preserving the drag angle
-//   - Container bounds (the character's viewBox) so the handle can't be
-//     dragged offscreen
+// The handle is clamped to the inscribed circle of the character
+// viewBox, so force magnitude is uniform in every direction; dragging
+// within a small radius of the body center clears the vector (the
+// gesture that means "no force").
 
 import React, { useRef, useState } from "react";
 import { Animal } from "../../data/avatar";
@@ -14,7 +14,7 @@ import { characterDisplayBox } from "../Character";
 
 type ForceVector = { x: number; y: number };
 
-export type TransformHandlesProps = {
+export type ForceHandleProps = {
   animal: Animal;
   rig: CharacterRig;
   forceVector?: ForceVector;
@@ -22,13 +22,13 @@ export type TransformHandlesProps = {
   width?: number;
 };
 
-export function TransformHandles({
+export function ForceHandle({
   animal,
   rig,
   forceVector,
   onForceVectorChange,
   width,
-}: TransformHandlesProps) {
+}: ForceHandleProps) {
   const { viewBox, display } = characterDisplayBox(animal, width);
   const svgRef = useRef<SVGSVGElement>(null);
   const [dragging, setDragging] = useState<number | null>(null); // pointerId
@@ -63,9 +63,8 @@ export function TransformHandles({
     return pt.matrixTransform(ctm.inverse());
   };
 
-  // Inscribed-circle radius of the character viewBox. Force magnitude
-  // is uniform in every direction; the strength comes from a larger
-  // FORCE_STRENGTH_MULTIPLIER at play time.
+  // Inscribed-circle radius of the character viewBox: the uniform cap
+  // on force magnitude in every direction.
   const maxMagnitude = Math.min(viewBox.width, viewBox.height) / 2;
 
   const handleDrag = (svgPt: { x: number; y: number }) => {
@@ -73,12 +72,12 @@ export function TransformHandles({
     const dy = svgPt.y - bodyCenter.y;
     const mag = Math.hypot(dx, dy);
 
-    // // Snap back to "no force" when the user drags within a small radius
-    // // of the body center.
-    // if (mag < 6) {
-    //   onForceVectorChange(undefined);
-    //   return;
-    // }
+    // Snap back to "no force" when the user drags within a small radius
+    // of the body center — the gesture that clears a force vector.
+    if (mag < 6) {
+      onForceVectorChange(undefined);
+      return;
+    }
 
     // Clamp to the inscribed circle, preserving the drag angle.
     if (mag > maxMagnitude) {

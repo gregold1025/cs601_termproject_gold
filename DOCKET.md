@@ -3,12 +3,57 @@
 Running list of upcoming work. Items are roughly ordered by dependency
 and natural buildup; reorder as priorities shift.
 
-## #1 — Read-through + architecture doc session
+## #1 — Finish the architecture doc
 
-Walk the full codebase together (it's at its smallest now), produce
-ARCHITECTURE.md with a wiring diagram (data → engine hooks → views).
-Doubles as the write-up skeleton, and marks the extension points the
-world/shapes vision (below) will plug into.
+The read-through happened (conversationally) and ARCHITECTURE.html (the
+visual diagram) exists. Remaining: write ARCHITECTURE.md, the prose
+companion, around the frames that emerged: the dependency triangle
+(data → engine → components, arrows only point down), the two
+enforcement sockets (invocation vs simulation), the two-engines-plus-
+conductor model, and draft→commit→enforce.
+
+## Unified physics refactor — landed (Jun 11)
+
+The two-gravity ambiguity is gone. One motion model everywhere:
+
+- `stepPhysics` — the physics tick extracted as a PURE function
+  (state, intent, dt, world) → state. Tested (stepPhysics.test.ts):
+  determinism, grounded-only friction, projectile arcs, optimal launch
+  angle (flat skids lose to 45° arcs — a feature, not a bug), clamps,
+  isResting. `useCharacterPhysics` is now a thin wrapper; gained
+  `resting` and `teleport`.
+- `useMovePlayer` DISSOLVED into two honestly-named engines:
+  - `useCharacterArticulation` — the form engine. Pure articulator:
+    pose + rotation tween over a given duration. No gravity, no
+    offset, no queue. Tweens always start from CURRENT values, so
+    interruptions interpolate gracefully. Rotation ends snapped via
+    `snapRotationForward` — interrupted flips complete forward, never
+    unwind.
+  - `useMoveSequencer` — the conductor. The only place allowed to know
+    both engines. Owns the dot-chain queue and the two clocks: the
+    fixed metronome (MOVE_TEMPO / speed per link — deterministic
+    chain timing) and the visual clock (a launch's flip rides the
+    predicted arc, with a live landing correction that completes the
+    flip when the body actually touches down).
+- `forceToImpulse` in data/ — THE one place a force vector becomes a
+  physics impulse. Lab and playground both launch through it.
+- The lab uses the same physics as the playground. Its only special
+  rule: snap home when (move done) AND (grounded) AND (settled).
+  The dead `currentOffset` arithmetic is gone from both views.
+- Review fixes: keyup never suppressed (no more walk-forever);
+  drag-to-center clears the force vector again; reset-pose on a
+  deleted move no longer strands a ghost editingId.
+- Renames: dance-editor/ → dance-lab/, DanceEditorView → DanceLab,
+  .dance-editor__ → .dance-lab__, TransformHandles → ForceHandle.
+  "Transform" purged from the vocabulary; the artifact is just Move.
+- Tests now exist: stepPhysics.test.ts + dance.test.ts (resolvers,
+  collision checking, forceToImpulse, snapRotationForward). TDD applied
+  surgically to the pure core, per the agreed split.
+
+Parked from this round: spacebar-manual chain advance (a future
+operator, e.g. `mw>wm`); deriving rotation per-frame from live vy
+instead of predicted airtime (only matters when mid-air collisions
+arrive).
 
 ## Design vision — north star (Jun 10)
 

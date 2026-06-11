@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Avatar World — System Architecture</title>
+    <style>
+      :root {
+        --bg: #0f1115;
+        --panel: #171a21;
+        --ink: #e8e9ec;
+        --dim: #9aa0aa;
+        --line: #2a2f3a;
+        --data: #d77757;     /* orange — data layer */
+        --engine: #6fb3c4;   /* teal  — engine layer */
+        --view: #9b8cf0;     /* purple— components layer */
+        --invoke: #e0b341;   /* gold  — invocation socket */
+        --sim: #6ec07a;      /* green — simulation socket */
+        --seam: #e06262;     /* red   — documented seams / review findings */
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        line-height: 1.5;
+        padding: 32px clamp(16px, 4vw, 64px) 80px;
+      }
+      h1 { font-size: 26px; margin: 0 0 4px; }
+      .sub { color: var(--dim); margin: 0 0 28px; font-size: 14px; }
+      h2 {
+        font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase;
+        color: var(--dim); margin: 40px 0 14px; font-weight: 600;
+      }
+      .legend {
+        display: flex; flex-wrap: wrap; gap: 14px 22px; margin: 0 0 8px;
+        font-size: 13px; color: var(--dim);
+      }
+      .legend span { display: inline-flex; align-items: center; gap: 7px; }
+      .swatch { width: 13px; height: 13px; border-radius: 3px; flex: none; }
+
+      /* ---- layered stack ---- */
+      .stack { display: flex; flex-direction: column; gap: 0; }
+      .layer {
+        border: 1px solid var(--line); border-radius: 12px;
+        background: var(--panel); padding: 16px 18px; margin-bottom: 18px;
+        position: relative;
+      }
+      .layer-tag {
+        position: absolute; top: -10px; left: 16px; font-size: 11px;
+        font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+        padding: 2px 9px; border-radius: 20px; background: var(--bg);
+      }
+      .layer-tag.data { color: var(--data); border: 1px solid var(--data); }
+      .layer-tag.engine { color: var(--engine); border: 1px solid var(--engine); }
+      .layer-tag.view { color: var(--view); border: 1px solid var(--view); }
+      .layer-note { color: var(--dim); font-size: 12.5px; margin: 6px 0 14px; }
+      .row { display: flex; flex-wrap: wrap; gap: 10px; }
+      .node {
+        border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px;
+        min-width: 150px; background: #1d212a; font-size: 13px;
+      }
+      .node b { display: block; font-size: 13.5px; margin-bottom: 2px; }
+      .node small { color: var(--dim); font-size: 11.5px; line-height: 1.35; display: block; }
+      .node.data { border-left: 3px solid var(--data); }
+      .node.engine { border-left: 3px solid var(--engine); }
+      .node.view { border-left: 3px solid var(--view); }
+      .node.invoke { box-shadow: inset 0 0 0 1px rgba(224,179,65,0.35); }
+      .node.sim { box-shadow: inset 0 0 0 1px rgba(110,192,122,0.35); }
+
+      .arrowdown {
+        text-align: center; color: var(--dim); font-size: 12px; margin: -6px 0 12px;
+      }
+      .arrowdown b { color: var(--ink); }
+
+      /* ---- flow diagram ---- */
+      .flow {
+        display: flex; flex-wrap: wrap; align-items: stretch; gap: 0;
+        border: 1px solid var(--line); border-radius: 12px; padding: 18px;
+        background: var(--panel);
+      }
+      .step {
+        flex: 1 1 150px; min-width: 150px; padding: 10px 12px;
+        border-radius: 9px; background: #1d212a; border: 1px solid var(--line);
+        font-size: 12.5px; position: relative;
+      }
+      .step b { display: block; margin-bottom: 3px; font-size: 13px; }
+      .step small { color: var(--dim); display: block; font-size: 11.5px; line-height: 1.4; }
+      .chev { align-self: center; color: var(--dim); font-size: 20px; padding: 0 6px; flex: none; }
+
+      .socket-row { display: flex; gap: 18px; flex-wrap: wrap; }
+      .socket {
+        flex: 1 1 320px; border-radius: 12px; padding: 16px 18px;
+        background: var(--panel); border: 1px solid var(--line);
+      }
+      .socket h3 { margin: 0 0 4px; font-size: 15px; }
+      .socket.invoke h3 { color: var(--invoke); }
+      .socket.sim h3 { color: var(--sim); }
+      .socket p { margin: 4px 0 10px; font-size: 13px; color: var(--dim); }
+      .socket .chain { font-size: 12.5px; }
+      .socket .chain code {
+        background: #0d0f13; padding: 1px 6px; border-radius: 5px;
+        color: var(--ink); font-size: 12px;
+      }
+
+      .seams { border: 1px solid var(--seam); border-radius: 12px; padding: 4px 18px 14px;
+        background: rgba(224,98,98,0.05); }
+      .seams h2 { color: var(--seam); }
+      .seam { padding: 11px 0; border-bottom: 1px solid rgba(224,98,98,0.18); font-size: 13px; }
+      .seam:last-child { border-bottom: none; }
+      .seam b { color: var(--ink); }
+      .seam small { color: var(--dim); display: block; margin-top: 2px; }
+      .seam .where { color: var(--seam); font-size: 11.5px; font-family: ui-monospace, Menlo, monospace; }
+
+      .footer { color: var(--dim); font-size: 12px; margin-top: 36px; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    </style>
+  </head>
+  <body>
+    <h1>Avatar World — System Architecture</h1>
+    <p class="sub">CS 601 Term Project · companion to ARCHITECTURE.md · open in Firefox</p>
+
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--data)"></span>data — pure types &amp; functions</span>
+      <span><span class="swatch" style="background:var(--engine)"></span>engine — stateful hooks</span>
+      <span><span class="swatch" style="background:var(--view)"></span>components — views</span>
+      <span><span class="swatch" style="background:var(--invoke)"></span>invocation socket</span>
+      <span><span class="swatch" style="background:var(--sim)"></span>simulation socket</span>
+      <span><span class="swatch" style="background:var(--seam)"></span>documented seam</span>
+    </div>
+
+    <!-- ============ LAYERS ============ -->
+    <h2>The dependency triangle — arrows only point down</h2>
+    <div class="stack">
+      <div class="layer">
+        <span class="layer-tag view">components/</span>
+        <p class="layer-note">Views. Import from both lower layers and assemble them into pixels. <code>App.tsx</code> routes between views.</p>
+        <div class="row">
+          <div class="node view"><b>App</b><small>router: committedAvatar, currentView</small></div>
+          <div class="node view"><b>PlaygroundView</b><small>composes physics + player + command surface</small></div>
+          <div class="node view"><b>Playground</b><small>camera math · world→screen projection</small></div>
+          <div class="node view"><b>Biome</b><small>sky + 3 parallax SVG layers</small></div>
+          <div class="node view"><b>Character</b><small>SVG body + limb/mouth paths</small></div>
+          <div class="node view"><b>dance-editor/</b><small>the lab: library, form, handles</small></div>
+          <div class="node view"><b>customize-avatar/</b><small>pickers, arrows, banner</small></div>
+          <div class="node view"><b>CommandInput / History</b><small>the typed command surface</small></div>
+        </div>
+      </div>
+      <div class="arrowdown">imports ▼ <b>(never back up)</b></div>
+
+      <div class="layer">
+        <span class="layer-tag engine">engine/</span>
+        <p class="layer-note">Hooks that hold live state and run logic over time. Import from <code>data/</code>, never from components.</p>
+        <div class="row">
+          <div class="node engine"><b>useGameLoop</b><small>raf ticker → onTick(dt)</small></div>
+          <div class="node engine sim"><b>useCharacterPhysics</b><small>position · velocity · gravity · applyImpulse</small></div>
+          <div class="node engine invoke"><b>useMovePlayer</b><small>pose · rotation · offset tween · queue</small></div>
+          <div class="node engine invoke"><b>useCommandRunner</b><small>input · submit · history · flash</small></div>
+          <div class="node engine"><b>useKeyboardInput</b><small>WASD/arrows/space → callbacks</small></div>
+          <div class="node engine"><b>useLocalStorage</b><small>typed persistence</small></div>
+        </div>
+      </div>
+      <div class="arrowdown">imports ▼</div>
+
+      <div class="layer">
+        <span class="layer-tag data">data/</span>
+        <p class="layer-note">Pure shapes and pure functions. Imports nothing from engine or components — type-checks on its own.</p>
+        <div class="row">
+          <div class="node data"><b>avatar.ts</b><small>Animal · Adjective · Biome · Avatar</small></div>
+          <div class="node data"><b>characters/dance.ts</b><small>Move · resolveCommandChain · isCommandTaken</small></div>
+          <div class="node data"><b>characters/types.ts</b><small>pose types · limbPath · mouthPath</small></div>
+          <div class="node data"><b>characters/palette.ts</b><small>ADJECTIVE_PALETTES · CSS-var plumbing</small></div>
+          <div class="node data"><b>characters/index.ts</b><small>CHARACTER_RIGS registry</small></div>
+          <div class="node data"><b>biomes/index.ts</b><small>BIOME_SCENES registry</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TWO SOCKETS ============ -->
+    <h2>The two enforcement sockets — how artifacts reach the playground</h2>
+    <div class="socket-row">
+      <div class="socket invoke">
+        <h3>① Invocation</h3>
+        <p>Artifacts sit idle until something <em>fires</em> one. Transient, one-shot. This is where the dance lab's moves are enforced.</p>
+        <div class="chain">
+          <code>keystroke</code> → <code>CommandInput</code> → <code>useCommandRunner.submit</code>
+          → <code>resolveCommandChain</code> (data) → <code>PlaygroundView.playMoves</code>
+          → <code>useMovePlayer.playSequence</code>
+        </div>
+      </div>
+      <div class="socket sim">
+        <h3>② Simulation</h3>
+        <p>Artifacts are always <em>present</em>; the physics loop reconciles the character against them every frame. This is where the future world objects will be enforced.</p>
+        <div class="chain">
+          <code>useGameLoop tick</code> → <code>useCharacterPhysics</code>
+          integrates forces, clamps to ground/bounds → today: one hardcoded floor;
+          tomorrow: a loop over collidable rectangles
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TWO GAME LOOPS ============ -->
+    <h2>Two game loops, summed in one place</h2>
+    <div class="flow">
+      <div class="step sim"><b>useCharacterPhysics</b><small>owns WORLD POSITION. Tick: intent → velocity, +gravity, integrate, clamp. Output: x/y in world px.</small></div>
+      <div class="chev">＋</div>
+      <div class="step invoke"><b>useMovePlayer</b><small>owns ARTICULATION. Tick: tween pose, lerp rotation, drain dot-chain queue. Output: pose · rotation · (offset).</small></div>
+      <div class="chev">→</div>
+      <div class="step view"><b>PlaygroundView</b><small>the ONLY integration point. characterX = physics.x (+ offset); rotation wraps Character. Sums the two engines.</small></div>
+      <div class="chev">→</div>
+      <div class="step view"><b>Playground</b><small>camera follows characterX, clamped to world edges; projects world→screen for both biome layers and the character.</small></div>
+    </div>
+
+    <!-- ============ DRAFT-COMMIT-ENFORCE ============ -->
+    <h2>Draft → commit → enforce (the editor/playground contract)</h2>
+    <div class="flow">
+      <div class="step view"><b>Editor view</b><small>loads committed data, holds a DRAFT in component state, mutates it as you work (live preview).</small></div>
+      <div class="chev">→</div>
+      <div class="step engine"><b>useLocalStorage</b><small>on Save, the draft is committed to the source of truth. Key: <code>ugp.move-library.v1</code></small></div>
+      <div class="chev">→</div>
+      <div class="step view"><b>PlaygroundView</b><small>reads the committed library, feeds it to the invocation socket. Editor writes, playground reads.</small></div>
+    </div>
+
+    <!-- ============ SEAMS ============ -->
+    <h2>&nbsp;</h2>
+    <div class="seams">
+      <h2>Documented seams — where the structure bends (from the architecture review)</h2>
+      <div class="seam">
+        <b>Sequencing lives inside the articulation engine.</b>
+        <span class="where">useMovePlayer.ts · queue + playSequence</span>
+        <small>The dot-chain queue advances inside the player's physics-tick. "How do chains run?" is buried in a single-move file. Extract a useSequencer driven by an onComplete callback when a third engine joins — this also lets link-timing key off physics state instead of the player's clock.</small>
+      </div>
+      <div class="seam">
+        <b>One force law applied at two altitudes.</b>
+        <span class="where">useMovePlayer.ts (offset) + PlaygroundView.tsx (impulse)</span>
+        <small>FORCE_STRENGTH_MULTIPLIER is multiplied in the engine (lab's cosmetic offset) and again in the view (real impulse), kept safe only by deliberately NOT passing forceVector to the player. Make it one forceToImpulse() in data/.</small>
+      </div>
+      <div class="seam">
+        <b>The playground's currentOffset term is always zero.</b>
+        <span class="where">PlaygroundView.tsx · characterX/Y</span>
+        <small>Dead arithmetic that misleads a reader into thinking the move player contributes position in the playground. Bind placement to physics.position alone.</small>
+      </div>
+      <div class="seam">
+        <b>Ground is a hardcoded y=0 plane, compared three ways.</b>
+        <span class="where">useCharacterPhysics.ts · lines ~65 / ~93 / ~111</span>
+        <small>grounded uses ≥0, clamp uses &gt;0, jump uses ≥0. No groundHeightAt(x) seam. This is the file the world-collision vision lands in — generalize the floor to a collision result before platforms arrive.</small>
+      </div>
+      <div class="seam">
+        <b>Library freshness is an invariant in a comment.</b>
+        <span class="where">PlaygroundView.tsx · useLocalStorage read</span>
+        <small>Correctness relies on the router fully unmounting the editor before the playground mounts. A tabbed/modal layout would silently serve a stale move set. Needs a subscription or reload-on-enter when that day comes.</small>
+      </div>
+    </div>
+
+    <p class="footer">
+      Color encodes layer. The triangle's one rule — arrows only point down — held across the whole review (no upward imports found).
+      Every file sorts into <em>defines an artifact</em>, <em>edits one</em>, or <em>enforces one</em>; every artifact reaches the playground through socket ① (invoked) or ② (simulated).
+    </p>
+  </body>
+</html>

@@ -1,6 +1,5 @@
 // PoseHandles — draggable overlay for editing a character's pose (limbs).
-// Force vector editing moved out into TransformHandles per the split
-// between pose and transform artifacts.
+// The force vector has its own overlay (ForceHandle).
 //
 // Each limb has two handles: an endpoint (sets endAngle by rotating
 // around the shoulder/hip) and a bend point (sets bendAmount by

@@ -44,8 +44,9 @@ export function useKeyboardInput(handlers: KeyboardInputHandlers): void {
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (handlersRef.current.disabled) return;
-
+      // Releasing a key must NEVER be suppressed, even while disabled.
+      // Otherwise a key held before disable (e.g. focusing the command
+      // box mid-walk) drops its keyup and the character drifts forever.
       switch (e.key) {
         case "ArrowLeft":
         case "a":
