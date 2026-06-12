@@ -14,6 +14,12 @@ const PLAYGROUND_HEIGHT = 700;
 // Tune this against each biome's ground-line position; same value for now.
 const CHARACTER_GROUND_OFFSET = 60;
 
+// The vertical camera ignores everything below this altitude (px above the
+// ground line), so ordinary jumps — which peak around ~184px with the
+// default jump/gravity — never bob the camera. Only real launches climb
+// past it and pull the camera (and the sky) upward.
+const VERTICAL_DEADZONE = 220;
+
 export type PlaygroundProps = {
   biome: BiomeName;
   character?: ReactNode;
@@ -57,6 +63,13 @@ export function Playground({
   );
   const characterScreenLeft = characterWorldX - cameraX + windowWidth / 2;
 
+  // Vertical camera: characterY < 0 is airborne, so altitude is how far
+  // above the ground line the character has risen. The camera only starts
+  // following once altitude clears the deadzone, then tracks 1:1 so the
+  // character holds a fixed screen height while it keeps climbing.
+  const altitude = Math.max(0, -characterY);
+  const cameraY = Math.max(0, altitude - VERTICAL_DEADZONE);
+
   return (
     <div
       style={{
@@ -66,14 +79,20 @@ export function Playground({
         overflow: "hidden",
       }}
     >
-      <Biome biome={biome} cameraX={cameraX} windowWidth={windowWidth} />
+      <Biome
+        biome={biome}
+        cameraX={cameraX}
+        cameraY={cameraY}
+        windowWidth={windowWidth}
+        viewportHeight={PLAYGROUND_HEIGHT}
+      />
 
       {character && (
         <div
           style={{
             position: "absolute",
             left: characterScreenLeft,
-            bottom: CHARACTER_GROUND_OFFSET - characterY,
+            bottom: CHARACTER_GROUND_OFFSET - characterY - cameraY,
             transform: "translateX(-50%)",
             pointerEvents: "none",
           }}
