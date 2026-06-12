@@ -53,10 +53,19 @@ Lab, Shape Lab, About, Documentation.
 - **Spacebar as argument delimiter** — for higher-order forms (slow, R3). `[parked]`
 - **Manual chain advance** — `mw>wm`: `>` means "wait for my input before
   the next step." `[parked]`
-- **`>` as namespace switch** — typing `dance>` / `shape>` enters that
-  grammar's mode, with a color-coded badge above the command line showing
-  the active namespace. NOTE: same `>` glyph as manual-advance — the two
-  roles must be disambiguated (see Open Decisions). `[parked]`
+- **`>` namespace qualifier** — `ns>cmd` qualifies one token to a
+  namespace; `.` still chains. So `dance>flipleft.shape>triangle.force>lift`
+  is one sentence composing three modules in order — the compound-
+  interaction thesis made *syntactic*, the whole modularity story in one
+  readable line. Two scopes of one mechanism: `shape>` **alone** sets the
+  current namespace (a working directory); `shape>triangle` is a per-token
+  override (an absolute path); unqualified tokens resolve in the current
+  namespace. `force>` shows a namespace can be a built-in *operation*, not
+  just a user library. Engineering: `resolveCommandChain` becomes a
+  dispatcher (ns → that namespace's resolver); the sequencer generalizes
+  from "play a move per link" to "run a namespaced action per link"
+  (move / spawn / force). Tellable as *vision* on the Documentation page
+  before it's built. `[parked — strong]`
 - **Fixed operators, free composition** — the alphabet and operators stay
   system-fixed; users compose and name freely. Meta-commands are codified,
   not user-mutable. The dance lab "nailed" this balance. `[principle]`
@@ -218,8 +227,9 @@ Lab, Shape Lab, About, Documentation.
 - **Arrow keys vs command-only movement** — body input alongside the
   command language, or commands as the sole motion source? Pluggable
   either way; no code pressure to decide.
-- **`>` glyph disambiguation** — namespace-switch vs manual chain-advance
-  can't both be `>`. Pick distinct markers.
+- **`>` glyph** — RESOLVED as the namespace qualifier (`ns>cmd`, with
+  `ns>` alone setting the current namespace). Manual chain-advance needs a
+  *different* marker now (it can't also be `>`).
 - **Shared command namespace across libraries** — `staircase.climb`? Do
   dot-chains compose across the move and shape libraries?
 - **World-object property vocabulary** — solid / bouncy / movable / …
