@@ -3,14 +3,79 @@
 Running list of upcoming work. Items are roughly ordered by dependency
 and natural buildup; reorder as priorities shift.
 
-## #1 — Finish the architecture doc
+## Ideation parking lot — Jun 12 (late, exploratory; not decisions)
 
-The read-through happened (conversationally) and ARCHITECTURE.html (the
-visual diagram) exists. Remaining: write ARCHITECTURE.md, the prose
-companion, around the frames that emerged: the dependency triangle
-(data → engine → components, arrows only point down), the two
-enforcement sockets (invocation vs simulation), the two-engines-plus-
-conductor model, and draft→commit→enforce.
+Threads from a long brainstorm, captured so they're not lost:
+
+- **Vertical world (keeper, ~free).** Extend the docketed Y-camera
+  follow: lerp the sky toward space-black through atmosphere bands as
+  the character climbs. Up is the cheapest direction to make the world
+  feel huge — ascending reveals sky, no content to author. Pairs with
+  launches (a big enough jump punches into the dark). Second priority.
+- **Vocabulary as the shape module's purpose.** The lab's higher-order
+  meaning: it's a vocabulary forge, not a sketchpad. Build + name
+  shapes, bind them to letters (e.g. V = a saved "spike"), then
+  compose with your own letters live (`tVVVb` = a triangle of spikes).
+  This is the macro done right — named, explicit reuse instead of the
+  opaque trailing-b. Fixed primitives (t/s/b), user-grown dictionary.
+  "You can't predict what someone builds once they have their own
+  words." `shape>` live mode = wield the vocabulary; the lab = forge it.
+- **Live build-at-cursor (cursor's real job = placement).** In the
+  build mode, the cursor wears a subtle animated blue hue; the
+  in-progress shape follows it on a slight spring/drag; spacebar drops
+  it into the scene and physics takes over. (Edge-selection / "hot
+  edge" attachment: de-prioritized — not as important as it sounded.)
+- **Still open: give the delimiter meaning.** The one unresolved
+  desire — a non-sequencing meaning for the connector in shape mode
+  (how shapes connect). May have to respect the grammar's edge
+  bindings. Sleep on it.
+- **Live-instance inspector ≠ a lab (resolves the "backwards" feeling).**
+  A surface whose "library" is the objects ALREADY in the scene — select
+  one, give it properties (trampoline = a force-on-collision response) —
+  isn't a broken mold. It's the *other* half of the world-builder: labs
+  forge templates off-stage; this edits live instances on-stage. Two
+  distinct tools, both legitimate. This is the property-editing aspect
+  of the deferred world/build lab.
+
+## Scope — grounded Jun 12
+
+Due **Tuesday**; work continues after. Five pages in view: Playground,
+Dance Lab, Shape Lab, About, Documentation.
+
+### Done (committed)
+- Playground (customize + command surface + unified physics).
+- Dance Lab (command-invoked moves) and Shape Lab (drum-grammar
+  polygons) — two modules on one recipe = the modularity proof.
+- Engine: stepPhysics (pure + tested), physics / articulation /
+  sequencer, command runner. 49 tests green.
+- ARCHITECTURE.html + ARCHITECTURE.md (both done — the read-through
+  doc is complete).
+
+### Tuesday cut line (remaining)
+- **About page** + **Documentation page** — how the labs work, for the
+  grader. The Documentation page is where the recipe (artifact →
+  editor → storage → socket) gets *told*, so Dance + Shape read as the
+  same machine twice. This is the "get the polygon right" deliverable:
+  not playground instantiation, but articulating why it's a sibling
+  module. A writing task, not a collision-engine task.
+- **Style pass** across all views.
+- **Vertical camera follow** — Y-clamp + sky→space gradient. Cheap,
+  highest visual reward on the board.
+- (Reminder: the course's AI-transcript appendix is a separate hard
+  requirement from the in-app Documentation page.)
+
+### Beyond Tuesday
+- Polygon **instantiation into the playground** (simulation socket;
+  collider = silhouette / convex hull; the body-vs-picture decision).
+- Live **`shape>` wizard** — build-at-cursor, spring-follow,
+  spacebar-drop.
+- **World-inspector** (the "not-a-lab" surface): select placed
+  instances, give them properties (trampoline = force-on-collision).
+- Telekinesis force vectors; bigger / generative vertical world.
+- **Fractal lab** — a *third* grammar module (self-similar artifacts).
+  Sibling to the Shape Lab or a deepening of its nesting; thematically
+  central to UGP's geometric/repeating decoration. Held, not muddied
+  with the Shape Lab. Its easy imaginability IS the recipe working.
 
 ## Shape Lab — landed (Jun 11)
 
