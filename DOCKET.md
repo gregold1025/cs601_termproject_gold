@@ -12,6 +12,38 @@ companion, around the frames that emerged: the dependency triangle
 enforcement sockets (invocation vs simulation), the two-engines-plus-
 conductor model, and draft→commit→enforce.
 
+## Shape Lab — landed (Jun 11)
+
+The second module, built to the four-slot recipe — and the proof the
+recipe repeats. Scope deliberately minimal: compose + name + persist,
+no playground wiring yet.
+
+- `data/shapes/grammar.ts` (pure, tested): the `Shape` artifact
+  `{ id, name, source, colorSeed }`; the three-terminal drum grammar
+  parser (`S → t E b`, `E → ε | F E`, `F → s | S`) with **no macro** —
+  every `b` is a plain close; recursion (`F → S`) kept, it's the
+  type-2 core. `computeRenderPolygons` flattens the AST into
+  render-ready polygons (regular/open/nested/partial vertex math +
+  outward fold ported fresh from the UGP prototype). `polygonFill`
+  deterministically assigns each polygon an adjective palette
+  (stroke = dark, fill = light) from a stored per-shape colorSeed.
+- `components/shape-lab/`: ShapeLab (draft → commit → enforce, mirrors
+  DanceLab), ShapeForm (two fields: grammar string filtered to t/s/b
+  with live green/yellow/red parse status + name), ShapeLibrary
+  (cards with live thumbnails, edit/delete, "+ Make new shape"),
+  ShapeRenderer (pure SVG, auto-fit viewBox, used for preview and
+  thumbnails). "Reroll colors" rolls a fresh seed.
+- Storage: `ugp.shape-library.v1`. Wiring: third App view + second
+  BottomBar card. No playground/command-line integration yet (the
+  simulation-socket slot is deliberately unfilled).
+- Vertices are never stored — the source string is the single source
+  of truth; geometry recomputes at render time.
+
+Next for shapes (deferred by design): instantiation into the playground
+(collider = outer silhouette / convex hull per the body-vs-picture
+decision), the `shape>` namespace on the command line, name-collision
+validation if the library grows into command resolution.
+
 ## Unified physics refactor — landed (Jun 11)
 
 The two-gravity ambiguity is gone. One motion model everywhere:

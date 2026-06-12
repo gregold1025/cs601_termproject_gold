@@ -3,6 +3,7 @@ import "./App.css";
 import { AnchorMeasure } from "./dev/AnchorMeasure";
 import { PlaygroundView } from "./components/PlaygroundView";
 import { DanceLab } from "./components/dance-lab";
+import { ShapeLab } from "./components/shape-lab";
 import { BottomBar } from "./components/BottomBar";
 import { Avatar } from "./data/avatar";
 
@@ -24,7 +25,7 @@ const FRIEND_AVATAR: Avatar = {
   biome: "jungle",
 };
 
-type View = "playground" | "danceLab";
+type View = "playground" | "danceLab" | "shapeLab";
 
 function App() {
   const [committedAvatar, setCommittedAvatar] =
@@ -43,7 +44,10 @@ function App() {
             committedAvatar={committedAvatar}
             setCommittedAvatar={setCommittedAvatar}
           />
-          <BottomBar onOpenDanceLab={() => setCurrentView("danceLab")} />
+          <BottomBar
+            onOpenDanceLab={() => setCurrentView("danceLab")}
+            onOpenShapeLab={() => setCurrentView("shapeLab")}
+          />
         </>
       )}
       {currentView === "danceLab" && (
@@ -51,6 +55,9 @@ function App() {
           avatar={committedAvatar}
           onBack={() => setCurrentView("playground")}
         />
+      )}
+      {currentView === "shapeLab" && (
+        <ShapeLab onBack={() => setCurrentView("playground")} />
       )}
     </div>
   );
