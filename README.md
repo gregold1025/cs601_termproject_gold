@@ -464,8 +464,8 @@ A self-map of where the project exercises core front-end skills.
 ## AI usage
 
 Per the course AI policy, this section discloses the use of AI on the project.
-A set of representative exchange excerpts accompanies the submission as a
-separate appendix.
+Samples of the working-session transcripts can be provided on request as
+evidence of these use cases.
 
 - **Tool:** Claude Opus 4.8 (1M context), via Claude Code.
 - **How it was used:**
@@ -487,7 +487,8 @@ separate appendix.
   assignment required (a full game loop, a context-free grammar, a two-clock
   sequencer). AI was used to reason about that additional surface — to keep the
   architecture coherent, the scope honest, and the deferrals deliberate.
-- **Not used for:** asset generation. All visual assets are first-party.
+- **Not used for:** asset generation. All visual assets are designed by
+  Gregory Gold in Figma.
 
 ---
 
