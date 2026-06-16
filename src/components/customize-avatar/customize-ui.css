@@ -47,13 +47,24 @@
 .cui-customize-button {
   position: absolute;
   right: 24px;
-  bottom: 24px;
-  background: #555;
+  /* Matches CommandInput's bottom + height so the two controls sit on
+     the same horizontal line in the playground chrome. CommandInput is
+     22px font + 28px vertical padding + 6px border = ~60px; we mirror
+     that explicitly here. Padding is set inline (height owns the
+     vertical sizing) and flex centers the label vertically. */
+  bottom: 16px;
+  height: 60px;
+  padding: 0 24px;
+  background: #2a3437;
   color: #fff;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cui-customize-button:hover {
-  background: #666;
+  background: #354247;
 }
 
 /* ----- Save / Cancel button group (customize-mode state) -------------- */
@@ -208,9 +219,9 @@
   right: 24px;
 }
 
-/* ----- Welcome banner (top of playground, in the sky) ---------------- */
+/* ----- Avatar banner (top of playground, in the sky, during customize) - */
 
-.cui-welcome-banner {
+.cui-avatar-banner {
   position: absolute;
   top: 60px;
   left: 50%;

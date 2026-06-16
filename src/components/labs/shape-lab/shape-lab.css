@@ -1,0 +1,139 @@
+/* Shape Lab — shape-specific styles on top of the shared lab.css.
+   Shared chrome (header, library, form, action buttons, validation)
+   lives in ../lab.css; this file holds only what's unique to the
+   shape lab: the shape card layout, the empty-renderer placeholder,
+   the source field's monospace treatment, the live parse status
+   line, and the reroll-colors button. */
+
+/* ---------- Main-column gap is tighter than the dance lab default ---------- */
+
+.lab--shape .lab__main {
+  gap: 12px;
+}
+
+/* Match the Dance Lab's stage proportions — flex-grow + min-height so
+   the preview area has the same visual weight across both labs. */
+.lab--shape .lab__stage {
+  flex: 1;
+  min-height: 200px;
+}
+
+/* Reset + reroll row inside the form: two buttons with the space
+   pushed between them so they read as a pair without crowding. */
+.shape-lab__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---------- Shape card (library row) ---------- */
+
+/* Visual treatment (cream bg, dark text, warm border, editing state,
+   action-button base) lives in ../lab.css alongside .move-card so the
+   two labs stay in sync. This file holds only what's unique to the
+   shape-card layout: the thumbnail tile, row padding, the name/source
+   text rules. */
+
+.shape-card {
+  padding: 8px 10px;
+}
+
+.shape-card__thumb {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  /* Dark frame around the shape preview so the polygon colors pop on
+     the cream card. */
+  background: #1a1a1a;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shape-card__names {
+  flex: 1;
+  min-width: 0;
+}
+
+.shape-card__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shape-card__source {
+  font-size: 11px;
+  font-family: ui-monospace, Menlo, monospace;
+  color: #666;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shape-card__buttons {
+  display: flex;
+  gap: 4px;
+}
+
+/* ---------- Stage placeholder (empty shape) ---------- */
+
+.shape-renderer--empty {
+  border: 1px dashed #2a2a2a;
+  border-radius: 8px;
+}
+
+/* ---------- Reroll-colors button ---------- */
+
+.shape-lab__reroll {
+  background: transparent;
+  color: #aaa;
+  border: 1px dashed #3a3a3a;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.shape-lab__reroll:hover {
+  color: #f0f0f0;
+  border-color: #555;
+  background: #1a1a1a;
+}
+
+/* ---------- Form variants: monospace grammar source + parse status ---------- */
+
+.shape-lab__source {
+  font-family: ui-monospace, Menlo, monospace;
+  letter-spacing: 0.15em;
+  font-size: 16px;
+}
+
+.shape-lab__status {
+  font-size: 12px;
+  padding: 5px 9px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.shape-lab__status--empty,
+.shape-lab__status--incomplete {
+  background: rgba(255, 220, 100, 0.12);
+  color: #e3c565;
+}
+
+.shape-lab__status--invalid {
+  background: rgba(196, 60, 60, 0.15);
+  color: #e07070;
+}
+
+.shape-lab__status--valid {
+  background: rgba(90, 138, 60, 0.18);
+  color: #9ad7a0;
+}

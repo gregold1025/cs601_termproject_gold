@@ -1,0 +1,108 @@
+/* LabSelection — persistent strip at the bottom of the playground.
+   Column layout: a "Command Labs" section label at the top, a row of
+   cards below. Cards fill the row's height and split its width evenly
+   so each lab gets a confident call-to-action footprint. Disabled
+   "Coming Soon" cards reserve space for future labs while staying
+   visually quiet. */
+
+.lab-selection {
+  flex: 0 0 auto;
+  height: 15vh;
+  min-height: 108px;
+  background: #1c2326;
+  border-top: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 16px;
+  z-index: 10;
+}
+
+/* Small left-justified section label above the card row — same
+   uppercase voice as the lab headers, but quieter weight/color. */
+.lab-selection__title {
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #8a9097;
+  align-self: flex-start;
+}
+
+.lab-selection__row {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  min-height: 0;
+}
+
+.lab-selection__card {
+  /* Cream fill matches the lab body the card opens into — visual
+     continuity between the launcher and its destination. */
+  background: #f5f0e6;
+  color: #1a1a1a;
+  border: 1px solid #e8e1cf;
+  border-radius: 10px;
+  padding: 0 24px;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  /* flex: 1 splits the row's width equally among cards (active or
+     disabled); align-items: stretch on the row handles the height. */
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition:
+    transform 0.1s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.lab-selection__card:hover {
+  background: #ece4d2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.lab-selection__card:active {
+  transform: translateY(0);
+}
+
+.lab-selection__card:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Reserved-but-inactive cards. Greyed back, no hover lift, can't be
+   focused/clicked — but they hold the row's geometry so the active
+   cards size consistently. */
+.lab-selection__card--disabled {
+  background: #2a3437;
+  color: #6a7176;
+  border-color: #3b474b;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.lab-selection__card--disabled:hover {
+  background: #2a3437;
+  transform: none;
+  box-shadow: none;
+}
+
+.lab-selection__card-label {
+  white-space: nowrap;
+}

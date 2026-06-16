@@ -14,6 +14,12 @@ export type Avatar = {
   biome: Biome;
 };
 
+// Shared localStorage key for the committed avatar. The customize panel
+// writes; the App reads on mount so a returning visitor's choices
+// persist across reloads. Bump the version suffix on breaking Avatar
+// shape changes.
+export const AVATAR_KEY = "ugp.avatar.v1";
+
 // Welcome sentence template. Reads grammatically across all 60 combinations.
 // e.g. "Welcome Brave Lion of the Mountain"
 export function welcomeText(avatar: Avatar): string {

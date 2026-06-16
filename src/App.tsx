@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import "./App.css";
-import { AnchorMeasure } from "./dev/AnchorMeasure";
-import { PlaygroundView } from "./components/PlaygroundView";
-import { DanceLab } from "./components/dance-lab";
-import { ShapeLab } from "./components/shape-lab";
-import { BottomBar } from "./components/BottomBar";
-import { Avatar } from "./data/avatar";
-
-const isMeasureMode =
-  typeof window !== "undefined" &&
-  new URLSearchParams(window.location.search).has("measure");
+import { PlaygroundView } from "./components/playground/PlaygroundView";
+import { DanceLab } from "./components/labs/dance-lab";
+import { ShapeLab } from "./components/labs/shape-lab";
+import { LabSelection } from "./components/LabSelection";
+import { HamburgerMenu } from "./components/HamburgerMenu";
+import { useLocalStorage } from "./engine/useLocalStorage";
+import { Avatar, AVATAR_KEY } from "./data/avatar";
 
 // Placeholder until onboarding flow exists.
 const INITIAL_AVATAR: Avatar = {
@@ -18,33 +15,30 @@ const INITIAL_AVATAR: Avatar = {
   biome: "mountains",
 };
 
-// Sketch of a companion avatar for later (not rendered yet).
-const FRIEND_AVATAR: Avatar = {
-  animal: "lion",
-  adjective: "strong",
-  biome: "jungle",
-};
-
 type View = "playground" | "danceLab" | "shapeLab";
 
 function App() {
-  const [committedAvatar, setCommittedAvatar] =
-    useState<Avatar>(INITIAL_AVATAR);
+  // Avatar persists across reloads. First-time visitor gets INITIAL_AVATAR;
+  // returning visitor gets whatever they last committed via the customize
+  // panel.
+  const [committedAvatar, setCommittedAvatar] = useLocalStorage<Avatar>(
+    AVATAR_KEY,
+    INITIAL_AVATAR,
+  );
   const [currentView, setCurrentView] = useState<View>("playground");
 
-  if (isMeasureMode) {
-    return <AnchorMeasure />;
-  }
-
   return (
-    <div className="App">
+    <div
+      className={`App${currentView === "playground" ? " App--playground" : ""}`}
+    >
       {currentView === "playground" && (
         <>
+          <HamburgerMenu />
           <PlaygroundView
             committedAvatar={committedAvatar}
             setCommittedAvatar={setCommittedAvatar}
           />
-          <BottomBar
+          <LabSelection
             onOpenDanceLab={() => setCurrentView("danceLab")}
             onOpenShapeLab={() => setCurrentView("shapeLab")}
           />

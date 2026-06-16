@@ -1,0 +1,340 @@
+/* Lab — shared styling for all editor labs (dance, shape, future).
+   Each lab's root element carries both `.lab` (for these shared rules)
+   and a per-lab class (`.dance-lab`, `.shape-lab`, etc.) for variant
+   styling that lives in the per-lab .css file. A new lab type only
+   needs to write its specifics — the entire shared lab chrome
+   (header, library column, form panel, action buttons, validation
+   states) comes for free. */
+
+/* ---------- Root layout ---------- */
+
+.lab {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f0e6; /* warm cream */
+  color: #1a1a1a; /* dark text on cream body; dark children override below */
+  font-family: system-ui, sans-serif;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 280px 1fr;
+  grid-template-areas:
+    "header header"
+    "library main";
+  box-sizing: border-box;
+}
+
+/* ---------- Header (back + lab title) ---------- */
+
+.lab__header {
+  grid-area: header;
+  background: #0a0a0a;
+  color: #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 28px;
+}
+
+.lab__back {
+  background: transparent;
+  color: #f0f0f0;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.lab__back:hover {
+  background: #1a1a1a;
+}
+
+.lab__title {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-align: right;
+}
+
+/* ---------- Library column (left) ---------- */
+
+/* White panel with dark text. Sits on the cream body and holds cream
+   cards (.move-card, .shape-card, etc.). */
+.lab__library {
+  grid-area: library;
+  background: #ffffff;
+  color: #1a1a1a;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.lab__library-title {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #1a1a1a;
+}
+
+.lab__library-empty {
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+}
+
+/* The dashed "+ Make new X" button at the top of every library.
+   Reads as a dark dashed placeholder on the white library sheet. */
+.lab__new-artifact {
+  width: 100%;
+  background: transparent;
+  color: #1a1a1a;
+  border: 1px dashed #1a1a1a;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.lab__new-artifact:hover {
+  color: #000;
+  border-color: #000;
+  background: #f0ece2;
+}
+
+/* ---------- Artifact cards (move-card, shape-card, future) ---------- */
+
+/* Visual treatment shared across every lab's artifact rows: a cream
+   tile on the white library sheet, dark text, warm border. Per-lab
+   files keep the layout sub-elements (move-card__primary,
+   shape-card__thumb, etc.) where the artifact shapes diverge. */
+.move-card,
+.shape-card {
+  background: #f5f0e6;
+  border: 1px solid #e8e1cf;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1a1a1a;
+}
+
+.move-card--editing,
+.shape-card--editing {
+  border-color: #c97a1f;
+  box-shadow: 0 0 0 1px #c97a1f;
+}
+
+/* Per-card action buttons (play, edit, delete glyphs). Same treatment
+   for both labs. */
+.move-card__btn,
+.shape-card__btn {
+  background: transparent;
+  border: 1px solid #b8b1a0;
+  color: #1a1a1a;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.move-card__btn:hover,
+.shape-card__btn:hover {
+  background: #ece4d2;
+  border-color: #1a1a1a;
+}
+
+.move-card__btn--danger:hover,
+.shape-card__btn--danger:hover {
+  border-color: #c43c3c;
+  color: #c43c3c;
+}
+
+/* ---------- Main column (stage + form) ---------- */
+
+.lab__main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  gap: 10px;
+}
+
+.lab__stage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e8e1cf;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ---------- Form panel ---------- */
+
+.lab__form {
+  width: 100%;
+  max-width: 480px;
+  background: #141414;
+  color: #f0f0f0;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lab__form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lab__form label {
+  font-size: 12px;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Inputs sit slightly LIGHTER than the form panel so the editable
+   region is unmistakable — opposite of the previous near-black on
+   dark-grey which read as part of the panel. */
+.lab__form input {
+  background: #2a2a2a;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  padding: 8px 10px;
+  color: #f0f0f0;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.lab__form input:focus {
+  outline: none;
+  border-color: #a0a0a0;
+}
+
+/* ---------- Name-collision validation ---------- */
+
+.lab__form input.lab__input--error {
+  background: rgba(196, 60, 60, 0.18);
+  border-color: #c43c3c;
+}
+
+.lab__label-error {
+  color: #e07070;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 8px;
+}
+
+/* ---------- Form action buttons ---------- */
+
+.lab__form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.lab__form-actions button {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lab__save {
+  background: #5a8a3c;
+  color: #fff;
+}
+
+.lab__save:hover {
+  background: #6a9c4c;
+}
+
+.lab__save:disabled {
+  background: #2a3a1c;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.lab__reset {
+  background: transparent;
+  color: #aaa;
+  border: 1px dashed #3a3a3a;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.lab__reset:hover {
+  color: #f0f0f0;
+  border-color: #555;
+  background: #1a1a1a;
+}
+
+/* ---------- Footer (bottom buffer + docs link) ---------- */
+
+/* Sits below the form in the main column. Two jobs: give the scroll a
+   resting spot past the form so action buttons are never the last
+   visible element, and link out to the relevant documentation section. */
+.lab__footer {
+  width: 100%;
+  max-width: 480px;
+  margin-top: 8px;
+  padding: 16px 4px 32px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #e8e1cf;
+}
+
+.lab__footer-link {
+  color: #1a1a1a;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.lab__footer-link:hover {
+  background: #f0ece2;
+  color: #000;
+}
+
+.lab__footer-link:focus-visible {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 2px;
+}

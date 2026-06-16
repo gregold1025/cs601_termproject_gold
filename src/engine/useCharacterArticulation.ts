@@ -34,7 +34,7 @@ import {
   snapRotationForward,
   ROTATION_Y_STEP,
   ROTATION_Z_STEP,
-} from "../data/characters/dance";
+} from "../data/labs/dance-moves/dance";
 
 export type Rotation = { y: number; z: number }; // whole turns
 

@@ -1,0 +1,10 @@
+/* StickerLayer — each sticker is absolutely positioned at its projected
+   screen coordinate inside the Playground. pointer-events: none so
+   stickers don't intercept clicks meant for the character or biome. */
+
+.sticker {
+  position: absolute;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 0;
+}

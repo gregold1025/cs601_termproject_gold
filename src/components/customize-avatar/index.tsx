@@ -13,7 +13,7 @@ import { SaveCancelButtons } from "./SaveCancelButtons";
 import { ColorPicker } from "./ColorPicker";
 import { AnimalArrows } from "./AnimalArrows";
 import { BiomeArrows } from "./BiomeArrows";
-import { WelcomeBanner } from "./WelcomeBanner";
+import { AvatarBanner } from "./AvatarBanner";
 
 export type CustomizeAvatarProps = {
   committedAvatar: Avatar;
@@ -44,7 +44,7 @@ export function CustomizeAvatar({
     <>
       {customizing && (
         <>
-          <WelcomeBanner avatar={currentAvatar} />
+          <AvatarBanner avatar={currentAvatar} />
           <ColorPicker
             selected={currentAvatar.adjective}
             onSelect={(adjective) => updateDraft({ adjective })}

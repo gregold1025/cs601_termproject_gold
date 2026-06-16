@@ -2,3 +2,14 @@
   min-height: 100vh;
   background: #1a1a1a;
 }
+
+/* Playground view fills the viewport as a flex column: Playground takes the
+   remaining height (flex: 1), BottomBar holds a slim strip at the bottom.
+   Scoped to this view so the labs keep normal block flow and can scroll. */
+.App--playground {
+  height: 100vh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
