@@ -84,7 +84,7 @@ export function HamburgerMenu() {
           </li>
         </ul>
         <div className="hamburger-menu__footer">
-          &copy; Urban Griots Collective 2026
+          &copy; Urban Griots Collaborative 2026
         </div>
       </nav>
     </>
