@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UGPlayground — About</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/site-chrome.css" />
+    <link rel="stylesheet" href="/about.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="site-brand" href="/">
+        <img
+          class="site-brand__logo"
+          src="/ug-logo-white.png"
+          alt=""
+        />
+        <span class="site-brand__wordmark"
+          ><span class="site-brand__letter">U</span><span
+            class="site-brand__letter site-brand__letter--orange"
+            >G</span
+          >Playground</span
+        >
+        <span class="site-brand__divider">/</span>
+        <span class="site-brand__page">About</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a class="site-nav__link" href="/about.html" aria-current="page"
+          >About</a
+        >
+        <a class="site-nav__link" href="/documentation.html">Documentation</a>
+        <a class="site-nav__link site-nav__link--cta" href="/">Playground →</a>
+      </nav>
+    </header>
+
+    <main class="about">
+      <section class="about__lede">
+        <h1 class="about__title">A sandbox for learning to compose</h1>
+        <p class="about__deck">
+          UGPlayground is an interactive playground where young people
+          build their own words for what their character can do — and
+          then watch those words run.
+        </p>
+      </section>
+
+      <section class="about__section">
+        <h2>Why this exists</h2>
+        <p>
+          Most tools for teaching computational thinking ask the learner
+          to follow a script: drag this block into that slot, press play,
+          see the expected result. UGPlayground turns that around. There
+          is no expected result. There is a small alphabet of moves and
+          shapes, an editor for each, and a single line where you type
+          combinations and watch what happens.
+        </p>
+        <p>
+          The site is built around one premise: <strong>you can't
+          predict what someone will build once they have their own
+          words.</strong> Naming a move, naming a shape, chaining them
+          together — these are tiny acts of language design, and they
+          carry the same generative power language always has. A
+          beginner who has saved five moves and three shapes already has
+          a combinatorial space too big to enumerate. The reward isn't
+          completing a task; it's discovering what their own grammar
+          produces.
+        </p>
+      </section>
+
+      <section class="about__section">
+        <h2>Who it's for</h2>
+        <p>
+          The intended user is a child or young learner — old enough to
+          read a name and type it back, young enough that the joy of
+          watching a character flip on command is still the central
+          reward. No prior programming experience is assumed. The
+          interface deliberately exposes a few primitives at a time
+          rather than a full editor surface; the depth lives in
+          composition, not in feature breadth.
+        </p>
+        <p>
+          The educational frame is two-fold: computational skill (naming,
+          composition, sequencing, deterministic outcomes) and creative
+          authorship (the artifacts you save are yours; nothing here is
+          rated against a correct answer). Both lines of practice run
+          through the same interface — every save adds to a personal
+          library of named things that can be combined with everything
+          else already saved.
+        </p>
+      </section>
+
+      <section class="about__section">
+        <h2>Urban Griots Playground (UGP)</h2>
+        <p>
+          UGPlayground is built within the broader framework of
+          <strong>Urban Griots Playground</strong> — an educational
+          design practice focused on giving children rich, generative
+          tools for self-expression and self-directed making, rooted in
+          a griot-informed view of learning as composition, naming, and
+          oral-tradition-style remix.
+        </p>
+        <p>
+          The principles UGP carries into this site:
+        </p>
+        <ul>
+          <li>
+            <strong>Vocabulary as the primary unit of authorship.</strong>
+            The alphabet is small and fixed; what learners build with it
+            is open-ended. New vocabulary entries (a saved move, a
+            saved shape) immediately become first-class composable
+            pieces.
+          </li>
+          <li>
+            <strong>No correct answers, only legible behaviors.</strong>
+            Every typed command either runs or doesn't; there's no
+            quality judgment behind it. Failure is information about
+            the grammar, not about the learner.
+          </li>
+          <li>
+            <strong>Composition surfaces emergence.</strong> Combining
+            things that work alone reveals behaviors the learner didn't
+            author and nobody scripted. That emergence is the reward
+            structure.
+          </li>
+          <li>
+            <strong>Persistent personal libraries.</strong> The things
+            you save are yours, named by you, and they persist across
+            sessions. Returning to the site means returning to your own
+            vocabulary, not starting over.
+          </li>
+        </ul>
+        <p>
+          The site is one module within a larger educational design
+          surface that UGP is developing; the labs you see here are
+          early instances of a broader pattern (artifact → editor →
+          library → invocation) intended to extend across other
+          creative domains.
+        </p>
+      </section>
+
+      <section class="about__section">
+        <h2>What you can do here</h2>
+        <p>
+          The current build ships three surfaces, all reachable from the
+          playground:
+        </p>
+        <ul>
+          <li>
+            <strong>Customize your avatar</strong> — pick an animal, a
+            personality (which colors the rig), and a biome to live in.
+          </li>
+          <li>
+            <strong>Author moves in the Dance Lab</strong> — pose the
+            character's limbs, attach a force vector, set rotations,
+            name the move, and save it to your library.
+          </li>
+          <li>
+            <strong>Author shapes in the Shape Lab</strong> — compose
+            polygons from a three-letter grammar, name them, and save
+            them.
+          </li>
+          <li>
+            <strong>Invoke anything you saved</strong> — type a name,
+            press space, and watch the character act it out (for moves)
+            or watch the shape appear in the world (for stickers).
+            Chain commands together with dots.
+          </li>
+        </ul>
+        <p>
+          Full mechanical detail is in the
+          <a class="about__link" href="/documentation.html">Documentation</a>.
+        </p>
+      </section>
+
+      <section class="about__section">
+        <h2>Context</h2>
+        <p>
+          This release of UGPlayground was built as the term project for
+          <strong>MET CS 601 — Frontend Web Application Development</strong>
+          at Boston University Metropolitan College (Summer 1, 2026,
+          Christian Hur). It is a single-author project and a single
+          slice of a longer-running design practice.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__attribution">
+        &copy; Urban Griots Collective 2026
+      </div>
+      <nav class="site-footer__nav" aria-label="Site">
+        <a class="site-footer__link" href="/">Playground</a>
+        <a class="site-footer__link" href="/about.html">About</a>
+        <a class="site-footer__link" href="/documentation.html">Documentation</a>
+      </nav>
+    </footer>
+  </body>
+</html>

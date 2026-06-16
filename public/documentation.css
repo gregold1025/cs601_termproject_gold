@@ -1,0 +1,329 @@
+/* documentation.css — page-specific styles for documentation.html.
+   Header/footer/typography defaults live in site-chrome.css; this file
+   adds the TOC sidebar grid, content layout, and content typography. */
+
+/* ---------- body grid ---------- */
+
+.doc-body {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- sidebar / TOC ---------- */
+
+.doc-sidebar {
+  background: var(--doc-bg-deep);
+  border-right: 1px solid var(--doc-line);
+  padding: 28px 20px 28px 32px;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.doc-toc-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--doc-ink-muted);
+  margin: 0 0 12px;
+}
+
+.doc-toc {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+
+.doc-toc ol {
+  list-style: none;
+  margin: 4px 0 10px;
+  padding-left: 14px;
+  border-left: 1px solid var(--doc-rule);
+}
+
+.doc-toc li {
+  margin: 4px 0;
+}
+
+.doc-toc a {
+  color: var(--doc-ink-soft);
+  text-decoration: none;
+  display: block;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.doc-toc a:hover {
+  background: var(--doc-toc-hover-bg);
+  color: var(--doc-ink-bright);
+}
+
+.doc-toc a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.doc-toc > li > a {
+  font-weight: 600;
+  color: var(--doc-ink);
+}
+
+/* ---------- main content ---------- */
+
+.doc-content {
+  padding: 40px 56px 80px;
+  max-width: 880px;
+}
+
+.doc-lede {
+  font-size: 17px;
+  color: var(--doc-ink-soft);
+  margin: 0 0 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--doc-rule);
+}
+
+.doc-section {
+  margin-top: 56px;
+  scroll-margin-top: 24px;
+}
+
+.doc-section:first-child {
+  margin-top: 0;
+}
+
+.doc-section > h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  letter-spacing: 0.2px;
+  color: var(--doc-ink-bright);
+}
+
+.doc-subsection {
+  margin-top: 32px;
+  scroll-margin-top: 24px;
+}
+
+.doc-subsection > h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 24px 0 10px;
+  color: var(--doc-ink);
+}
+
+.doc-sub-subsection {
+  margin-top: 20px;
+  scroll-margin-top: 24px;
+}
+
+.doc-sub-subsection > h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 18px 0 8px;
+  color: var(--doc-ink);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* h4 used as inline heading inside a subsection (engines section) */
+.doc-subsection > h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 22px 0 6px;
+  color: var(--doc-ink);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.doc-content p {
+  margin: 12px 0;
+  color: var(--doc-ink-soft);
+}
+
+.doc-content ol,
+.doc-content ul {
+  margin: 12px 0;
+  padding-left: 26px;
+  color: var(--doc-ink-soft);
+}
+
+.doc-content li {
+  margin: 6px 0;
+}
+
+.doc-content code {
+  font-family: ui-monospace, Consolas, "SF Mono", Menlo, monospace;
+  font-size: 13.5px;
+  background: var(--doc-code-bg);
+  border: 1px solid var(--doc-code-border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--doc-accent);
+}
+
+.doc-content strong {
+  color: var(--doc-ink-bright);
+  font-weight: 600;
+}
+
+.doc-content em {
+  color: var(--doc-ink-em);
+  font-style: italic;
+}
+
+/* ---------- figures + image placeholders ---------- */
+
+/* <figure> wrapper around screenshots, diagrams, and placeholder boxes.
+   Margins keep figures visually separated from surrounding prose. */
+.doc-figure {
+  margin: 24px auto;
+  max-width: 600px;
+}
+
+.doc-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--doc-rule);
+}
+
+/* Trim 15% off the top and 15% off the bottom of the image. Implemented
+   by forcing the container into a wider aspect ratio than the source
+   and letting object-fit: cover crop the vertical overflow. Tuned for
+   roughly 16:9 source captures (playground / lab screenshots and GIFs);
+   if a source is significantly taller or narrower, the crop will look
+   more or less aggressive than expected. */
+.doc-figure--crop-15 img {
+  aspect-ratio: 16 / 8.3;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Smaller display size for shape-output examples (triangle, square,
+   star). Half the default 600px max so the shape thumbnails read as a
+   row of clean small examples rather than dominating the column. */
+.doc-figure--small {
+  max-width: 300px;
+}
+
+/* Star-breakdown explanation image is natively 1046px wide; capping at
+   523px renders it at half native size. */
+.doc-figure--breakdown {
+  max-width: 300px;
+  background-color: white;
+  border-radius: 10px;
+}
+
+/* System diagrams (2.1, 2.2, 2.3) are wide and text-heavy — they need
+   most of the content column to stay legible. 768px matches the inner
+   content width (.doc-content max-width 880 minus 56px padding each
+   side). The SVG sources scale crisply at any size. */
+.doc-figure--diagram {
+  max-width: 768px;
+}
+
+.doc-figure--diagram img {
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.doc-figure figcaption {
+  font-size: 13px;
+  color: var(--doc-ink-muted);
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Yellow boxes that stand in for unmade screenshots/diagrams. The
+   monospaced label tells the editor exactly what to drop in. */
+.doc-placeholder {
+  background: #f3e25c;
+  color: #2a2010;
+  padding: 56px 24px;
+  border: 2px dashed #b8a020;
+  border-radius: 8px;
+  text-align: center;
+  font-family: ui-monospace, Consolas, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1.5;
+}
+
+.doc-placeholder code {
+  background: rgba(0, 0, 0, 0.12);
+  border: none;
+  color: #2a2010;
+}
+
+/* ---------- reference helpers ---------- */
+
+/* Definition list used for type catalog, hook catalog, file map, and
+   glossary. Term on its own line, definition indented underneath. */
+.doc-deflist {
+  margin: 14px 0;
+  padding: 0;
+  color: var(--doc-ink-soft);
+}
+
+.doc-deflist dt {
+  margin-top: 14px;
+  font-weight: 600;
+  color: var(--doc-ink);
+}
+
+.doc-deflist dt:first-child {
+  margin-top: 0;
+}
+
+.doc-deflist dd {
+  margin: 4px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--doc-rule);
+}
+
+/* ASCII component tree — keeps the box-drawing characters aligned. */
+.doc-tree {
+  font-family: ui-monospace, Consolas, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  background: #0f1316;
+  border: 1px solid var(--doc-rule);
+  border-radius: 8px;
+  padding: 18px 22px;
+  margin: 16px auto;
+  max-width: 600px;
+  color: var(--doc-ink-soft);
+  overflow-x: auto;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 760px) {
+  .doc-body {
+    grid-template-columns: 1fr;
+  }
+
+  .doc-sidebar {
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--doc-line);
+    padding: 20px 24px;
+  }
+
+  .doc-content {
+    padding: 28px 24px 64px;
+  }
+}

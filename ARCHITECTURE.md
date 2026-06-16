@@ -1,4 +1,4 @@
-# Avatar World — Architecture
+# UGPlayground — Architecture
 
 Prose companion to `ARCHITECTURE.html` (the visual diagram). This is the
 map of how the system is wired and *why* it's wired that way — written so
@@ -37,13 +37,21 @@ the rest of the app speaks.
 - `characters/types.ts` — pose types (`CharacterPose`, `LimbState`,
   `MouthState`, `CharacterRig`) and the geometry that turns a pose into
   SVG paths (`limbPath`, `mouthPath`).
-- `characters/dance.ts` — the `Move` artifact, command resolution
-  (`resolveCommand`, `resolveCommandChain`), uniqueness checking
-  (`isCommandTaken`), the force law (`forceToImpulse`), the sequencing
-  constant (`MOVE_TEMPO`), and the rotation snap (`snapRotationForward`).
 - `characters/palette.ts` — `ADJECTIVE_PALETTES` and the CSS-variable
   plumbing that recolors the grayscale animal SVGs.
 - `characters/index.ts` — the `CHARACTER_RIGS` registry (animal → rig).
+- `labs/dance-moves/dance.ts` — the `Move` artifact, the force law
+  (`forceToImpulse`), the sequencing constant (`MOVE_TEMPO`), and the
+  rotation snap (`snapRotationForward`).
+- `labs/shapes/grammar.ts` — the `Shape` artifact and the drum-grammar
+  parser / geometry helpers.
+- `command.ts` — the cross-lab command surface: `CommandToken` (the
+  resolver's discriminated union), `resolveCommand`,
+  `resolveCommandChain`, and `isCommandTaken` (one-namespace collision
+  check across both libraries). Lives at the data root because it
+  bridges both labs.
+- `labs/shapes/stickers.ts` — the `Sticker` artifact (placed shapes in
+  the world).
 - `biomes/index.ts` — the `BIOME_SCENES` registry (biome → scene).
 
 The two registries are the mechanism of "scale by data, not by systems":
@@ -243,11 +251,13 @@ refs, no side effects. This buys three things:
   into a loop over collidable rectangles — a *data* change to a pure
   function, not a rewrite of a tangled callback.
 
-The same logic applies to `data/characters/dance.ts`: the resolvers, the
-uniqueness check, the force law, and the rotation snap are pure and
-covered by `dance.test.ts`. The rule we settled on: **test the pure
-core, not the visual/interaction layer.** Testability and good
-architecture turned out to be the same move.
+The same logic applies to the data layer's pure helpers. The dance
+force law and rotation snap (`data/labs/dance-moves/dance.ts`) are
+covered by `dance.test.ts`; the resolvers and cross-library
+collision check (`data/command.ts`) are covered by `command.test.ts`.
+The rule we settled on: **test the pure core, not the
+visual/interaction layer.** Testability and good architecture turned
+out to be the same move.
 
 ---
 

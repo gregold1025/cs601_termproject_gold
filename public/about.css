@@ -1,0 +1,113 @@
+/* about.css — page-specific styles for about.html. Single-column
+   centered prose layout, no sidebar. Header/footer/typography defaults
+   live in site-chrome.css. */
+
+.about {
+  flex: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 32px 80px;
+}
+
+/* ---------- lede ---------- */
+
+.about__lede {
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--doc-rule);
+}
+
+.about__title {
+  font-size: 34px;
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 0 0 16px;
+  letter-spacing: -0.2px;
+  color: var(--doc-ink-bright);
+}
+
+.about__deck {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--doc-ink-soft);
+  margin: 0;
+}
+
+/* ---------- sections ---------- */
+
+.about__section {
+  margin-top: 40px;
+}
+
+.about__section h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  letter-spacing: 0.2px;
+  color: var(--doc-ink-bright);
+}
+
+.about__section p {
+  margin: 12px 0;
+  color: var(--doc-ink-soft);
+}
+
+.about__section ul {
+  margin: 14px 0;
+  padding-left: 22px;
+  color: var(--doc-ink-soft);
+}
+
+.about__section li {
+  margin: 8px 0;
+}
+
+.about__section strong {
+  color: var(--doc-ink-bright);
+  font-weight: 600;
+}
+
+.about__section em {
+  color: var(--doc-ink-em);
+  font-style: italic;
+}
+
+/* ---------- link ---------- */
+
+.about__link {
+  color: var(--doc-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.about__link:hover {
+  color: var(--doc-ink-bright);
+}
+
+.about__link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 640px) {
+  .about {
+    padding: 32px 20px 64px;
+  }
+
+  .about__title {
+    font-size: 26px;
+  }
+
+  .about__deck {
+    font-size: 16px;
+  }
+
+  .about__section h2 {
+    font-size: 19px;
+  }
+}

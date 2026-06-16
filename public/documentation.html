@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UGPlayground — Documentation</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/site-chrome.css" />
+    <link rel="stylesheet" href="/documentation.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="site-brand" href="/">
+        <img
+          class="site-brand__logo"
+          src="/ug-logo-white.png"
+          alt=""
+        />
+        <span class="site-brand__wordmark"
+          ><span class="site-brand__letter">U</span><span
+            class="site-brand__letter site-brand__letter--orange"
+            >G</span
+          >Playground</span
+        >
+        <span class="site-brand__divider">/</span>
+        <span class="site-brand__page">Documentation</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a class="site-nav__link" href="/about.html">About</a>
+        <a class="site-nav__link" href="/documentation.html" aria-current="page"
+          >Documentation</a
+        >
+        <a class="site-nav__link site-nav__link--cta" href="/">Playground →</a>
+      </nav>
+    </header>
+
+    <div class="doc-body">
+      <aside class="doc-sidebar" aria-label="Table of contents">
+        <nav>
+          <h2 class="doc-toc-title">Contents</h2>
+          <ol class="doc-toc">
+            <li><a href="#overview">Overview</a></li>
+            <li>
+              <a href="#user">1. User</a>
+              <ol>
+                <li><a href="#playground">1.1 Playground</a></li>
+                <li><a href="#customize">1.2 Customize your character</a></li>
+                <li><a href="#commands">1.3 Commands</a></li>
+                <li>
+                  <a href="#labs">1.4 Labs</a>
+                  <ol>
+                    <li><a href="#dance-lab">Dance Lab</a></li>
+                    <li><a href="#shape-lab">Shape Lab</a></li>
+                  </ol>
+                </li>
+              </ol>
+            </li>
+            <li>
+              <a href="#system">2. System</a>
+              <ol>
+                <li><a href="#command-pipeline">2.1 Commands</a></li>
+                <li><a href="#lab-modules">2.2 Lab modules</a></li>
+                <li><a href="#engines">2.3 Engines</a></li>
+                <li><a href="#end-to-end">2.4 End-to-end example</a></li>
+              </ol>
+            </li>
+            <li>
+              <a href="#reference">3. Reference</a>
+              <ol>
+                <li><a href="#type-catalog">3.1 Types</a></li>
+                <li><a href="#engine-hooks">3.2 Engine hooks</a></li>
+                <li>
+                  <a href="#component-hierarchy">3.3 Component hierarchy</a>
+                </li>
+                <li><a href="#file-map">3.4 File map</a></li>
+                <li><a href="#glossary">3.5 Glossary</a></li>
+              </ol>
+            </li>
+          </ol>
+        </nav>
+      </aside>
+
+      <main class="doc-content">
+        <section id="overview" class="doc-section">
+          <h2>Overview</h2>
+          <p class="doc-lede">
+            UGPlayground is an interactive playground where the user customizes
+            a character, authors small artifacts (moves and shapes) inside
+            dedicated labs, and invokes those artifacts back in the world by
+            typing their names. The site is organized around one mental model:
+            <strong
+              >everything you author has a name; everything named can be
+              invoked.</strong
+            >
+          </p>
+          <p>This page documents three slices of the system:</p>
+          <ul>
+            <li>
+              <strong>User</strong> — what you click and type, what the labs do,
+              what each affordance produces.
+            </li>
+            <li>
+              <strong>System</strong> — how it's structured, why those choices
+              were made, how a single keystroke threads through every layer.
+            </li>
+            <li>
+              <strong>Reference</strong> — a lookup-shaped catalog of types,
+              hooks, components, and project terms.
+            </li>
+          </ul>
+        </section>
+
+        <!-- ============================================================ -->
+
+        <section id="user" class="doc-section">
+          <h2>1. User</h2>
+
+          <section id="playground" class="doc-subsection">
+            <h3>1.1 Playground</h3>
+            <p>
+              Welcome to the playground! This is your world, this is your
+              character. You get to teach your character how to do and make
+              things with commands.
+            </p>
+          </section>
+
+          <section id="customize" class="doc-subsection">
+            <h3>1.2 Customize your character</h3>
+            <p>
+              Press the Customize button in the bottom-right of the playground.
+              Use the arrows and buttons to choose an animal, a color, and a
+              biome. You can change this at any time in the customize menu
+              – just press save.
+            </p>
+            <figure class="doc-figure doc-figure--crop-15">
+              <img
+                src="/documentation-img/01-customize-avatar.png"
+                alt="The Customize panel open over the playground, showing animal arrows on the left, a color picker swatch, and biome arrows on the right."
+              />
+            </figure>
+          </section>
+
+          <section id="commands" class="doc-subsection">
+            <h3>1.3 Commands</h3>
+            <p>
+              The way you talk to your character is in the bottom Command Bar.
+              Try typing <code>wave</code> and pressing the spacebar or enter.
+            </p>
+            <figure class="doc-figure doc-figure--crop-15">
+              <img
+                src="/documentation-img/02-wave.gif"
+                alt="Animated playground clip: the user types 'wave' in the command bar, presses space, and the character performs a waving motion with one arm."
+              />
+            </figure>
+            <p>Try another — type <code>jump</code>.</p>
+            <figure class="doc-figure doc-figure--crop-15">
+              <img
+                src="/documentation-img/03-jump.gif"
+                alt="Animated playground clip: the user types 'jump' in the command bar, presses space, and the character launches into the air and lands."
+              />
+            </figure>
+            <p>
+              Both <code>wave</code> and <code>jump</code> are artifacts of the
+              Dance Lab. They already learned these moves, and they can learn
+              many more.
+            </p>
+            <h4>Chaining commands</h4>
+            <p>
+              You can chain commands together with a period. Try typing
+              <code>jump.wave</code>. The character does each in sequence — jump
+              first, then wave.
+            </p>
+            <figure class="doc-figure doc-figure--crop-15">
+              <img
+                src="/documentation-img/04-jump-wave.gif"
+                alt="Animated playground clip: the user types 'jump.wave' in the command bar, and the character jumps then waves in sequence."
+              />
+            </figure>
+          </section>
+
+          <section id="labs" class="doc-subsection">
+            <h3>1.4 Labs</h3>
+            <p>
+              Last section we showed you how to type commands. Now we'll show
+              you how to use these labs to write commands that give your
+              character new skills. Every lab contains a library with a list of
+              named artifacts you've written. Wave and jump are both Dance Lab
+              artifacts — commands that make the character move.
+            </p>
+            <p>Let's jump in and take a look at the Dance Lab.</p>
+
+            <section id="dance-lab" class="doc-sub-subsection">
+              <h4>Dance Lab</h4>
+              <p>
+                The Dance Lab is designed for writing dance moves. The lab gives
+                you grabbable nodes on each limb; bend a limb by dragging the
+                node at its middle. The green dot at the character's center is a
+                force handle — drag it in a direction to apply force, sending
+                the character moving that way.
+              </p>
+              <figure class="doc-figure doc-figure--crop-15">
+                <img
+                  src="/documentation-img/05-dance-lab.gif"
+                  alt="The Dance Lab editor: the character stands on the pedestal with grabbable nodes on each limb and a green force-handle dot at the center, with the form panel on the right showing name, speed, and rotation fields."
+                />
+              </figure>
+              <p>
+                Press Play to preview the move you've created. When you're
+                satisfied and the name field has a value, press Save Move.
+                Remember: every artifact needs a name so you can call it on the
+                playground.
+              </p>
+              <p>
+                You can edit any saved move by clicking the pencil icon in the
+                move library. You can play a saved move with the play button, or
+                delete it with the X.
+              </p>
+              <figure class="doc-figure doc-figure--crop-15">
+                <img
+                  src="/documentation-img/06-move-edit.gif"
+                  alt="A saved move card in the move library showing the move's name on the left and three small icon buttons on the right: pencil to edit, play triangle to preview, and X to delete."
+                />
+              </figure>
+              <p>
+                After saving a new move, return to the Playground and type your
+                new command to see your character perform it.
+              </p>
+            </section>
+
+            <section id="shape-lab" class="doc-sub-subsection">
+              <h4>Shape Lab</h4>
+              <p>
+                The Shape Lab lets you build shapes out of a small language of
+                three letters:
+              </p>
+              <ul>
+                <li><code>T</code> opens a new polygon.</li>
+                <li><code>S</code> is a side.</li>
+                <li><code>B</code> closes the polygon.</li>
+              </ul>
+              <p>Let's do an example. This is how you write a triangle:</p>
+              <p>
+                <code>TSSSB</code>
+              </p>
+              <figure class="doc-figure doc-figure--small">
+                <img
+                  src="/documentation-img/07-triangle.png"
+                  alt="A rendered triangle."
+                />
+              </figure>
+              <p>This is how you write a square:</p>
+              <p>
+                <code>TSSSB</code>
+              </p>
+              <figure class="doc-figure doc-figure--small">
+                <img
+                  src="/documentation-img/08-square.png"
+                  alt="A rendered square."
+                />
+              </figure>
+              <p>
+                Instead of writing <code>S</code> for a plain side, you can
+                write another <code>T…B</code> block that makes that side itself
+                a polygon. That's how you build compound shapes. Here's how you
+                write a star — a polygon whose sides are themselves smaller
+                polygons:
+              </p>
+              <p>
+                <code>TTSSSBTSSSBTSSSBTSSSBB</code>
+              </p>
+              <figure class="doc-figure doc-figure--small">
+                <img
+                  src="/documentation-img/09-star.png"
+                  alt="A rendered star, built by nesting smaller polygons inside the sides of an outer polygon."
+                />
+              </figure>
+              <figure class="doc-figure doc-figure--breakdown">
+                <img
+                  src="/documentation-img/10-star-breakdown.png"
+                  alt="Annotated breakdown of how the star is constructed: the outer polygon's sides are each replaced by smaller polygon blocks, which nest to form the star's points."
+                />
+              </figure>
+              <p>
+                This is what's called a <em>type-2 grammar</em> — a small fixed
+                alphabet whose rules let you build endlessly nested
+                compositions.
+              </p>
+              <p>
+                For now, the polygons you save are stickers your character can
+                place on the playground when you type their name. Eventually
+                they'll be interactive — you'll be able to build with them and
+                create a world of your own.
+              </p>
+            </section>
+          </section>
+        </section>
+
+        <!-- ============================================================ -->
+
+        <section id="system" class="doc-section">
+          <h2>2. System</h2>
+          <p>
+            The system layer is the architecture behind the user surface. How
+            files are organized, how data flows from edit to render, how new
+            modules plug in.
+          </p>
+
+          <section id="command-pipeline" class="doc-subsection">
+            <h3>2.1 Commands</h3>
+            <p>
+              Picking up from User §1.3 — when you press space in the command
+              bar, this is what happens under the hood:
+            </p>
+
+            <figure class="doc-figure doc-figure--diagram">
+              <img
+                src="/documentation-img/11-command-pipeline.svg"
+                alt="Command pipeline diagram: CommandInput (component) feeds useCommand (hook), which calls resolveCommandChain (data) to produce a CommandToken array (data); useMoveSequencer (hook) dispatches each token. Boxes are color-coded — red for components, blue for hooks, green for data."
+              />
+              <figcaption>
+                The command pipeline. The outer steps are stateful (a component,
+                a hook, a hook); the nested resolver is pure data.
+              </figcaption>
+            </figure>
+
+            <ol>
+              <li>
+                A keystroke lands in <code>CommandInput</code> — a controlled
+                React component whose value lives in <code>useCommand</code>.
+                Space calls <code>submit()</code>.
+              </li>
+              <li>
+                <code>useCommand</code> owns the input string, the green/red
+                flash state, and the self-pruning history list.
+                <code>submit()</code> trims the string and hands it to
+                <code>resolveCommandChain</code>.
+              </li>
+              <li>
+                <code>resolveCommandChain</code> is a pure function in
+                <code>data/command.ts</code>. It splits on dots, looks each
+                segment up in the move and shape libraries, and returns a
+                <code>CommandToken[]</code> — a discriminated union of
+                <code>{ type: "move", move }</code> and
+                <code>{ type: "shape", shape }</code>. Pure because nothing in
+                the resolver depends on time, React, or the DOM — that's why it
+                sits in <code>data/</code> while the surrounding hook sits in
+                <code>engine/</code>.
+              </li>
+              <li>
+                Validation is all-or-nothing. A failed segment returns
+                <code>null</code>; the input flashes red and the entry logs as a
+                strikethrough. A clean chain flashes green and the tokens go to
+                <code>useMoveSequencer.runChain</code>.
+              </li>
+              <li>
+                The sequencer dispatches per token type. A
+                <strong>move</strong> fires its impulse through physics and cues
+                articulation. A <strong>shape</strong> fires the sticker-spawn
+                callback — because there is no associated animation, shape
+                tokens are zero-cost to the metronome and take no time.
+              </li>
+            </ol>
+          </section>
+
+          <section id="lab-modules" class="doc-subsection">
+            <h3>2.2 Lab modules</h3>
+            <p>
+              A <strong>lab</strong> is a workspace where the user authors an
+              artifact — a named thing they save to a library and invoke from
+              the playground. The Dance Lab and the Shape Lab are the two labs
+              shipped today; they look different on the surface but they share
+              the same skeleton. That shared skeleton is what makes new labs
+              cheap to add.
+            </p>
+
+            <figure class="doc-figure doc-figure--diagram">
+              <img
+                src="/documentation-img/12-lab-anatomy.svg"
+                alt="Lab anatomy diagram: a Move or Shape artifact (data) is authored in DanceLab or ShapeLab (component), saved to a localStorage library (data), read on mount by the Playground (component), and dispatched through resolveCommandChain (data). Boxes color-coded — red for components, blue for hooks, green for data."
+              />
+              <figcaption>
+                A lab's four moving parts. The user works inside the editor; the
+                library is the bridge.
+              </figcaption>
+            </figure>
+
+            <p>
+              <strong>Each lab provides four things:</strong>
+            </p>
+            <ul>
+              <li>
+                <strong>Artifact type</strong> — a pure data shape describing
+                what a saved thing looks like. A <code>Move</code> carries a
+                pose, a force vector, and a name; a <code>Shape</code>
+                carries a grammar string and a color seed.
+              </li>
+              <li>
+                <strong>Editor view</strong> — the lab's React component, where
+                the user composes and names the artifact. The editor holds a
+                <em>draft</em> of the artifact in component state; clicking Save
+                commits the draft into the library.
+              </li>
+              <li>
+                <strong>Library</strong> — an array of saved artifacts persisted
+                in local memory under a versioned key. The playground reads it
+                on mount and the command resolver uses it to interpret typed
+                input.
+              </li>
+              <li>
+                <strong>Command-resolver hook</strong> — the route back into the
+                playground. Typing the artifact's name in the command bar
+                invokes it (see §2.1 for the pipeline).
+              </li>
+            </ul>
+
+            <h4>Why labs are extensible</h4>
+            <p>
+              Adding a new lab is about filling in the four slots. The engines
+              (physics, articulation, sequencer) are shared across every lab; in
+              many cases, the existing engines are equipped with whatever the
+              new artifact invoke. There is no per-lab plumbing that has to be
+              re-routed every time. The shipping cost of "another lab" stays
+              roughly constant as the project grows.
+            </p>
+            <p>
+              The exception — and the seam for future growth — is when a lab
+              introduces a new dynamic the existing engines don't cover. The
+              current engines only know how to invoke transient events: a move
+              fires once and ends; a shape spawns once and the sticker stops
+              being engine-relevant. They have no concept of persistent
+              world-loop interaction.
+            </p>
+            <p>
+              A planned future addition is a <strong>collision engine</strong>
+              — giving labs access to what we'd call a
+              <em>simulation socket</em> alongside the current invocation path.
+              A lab using the simulation socket would let its artifacts
+              persistently change the game loop of the world (collision,
+              attraction, decay, anything that reads from and writes to the
+              world every frame). The four-slot recipe stays the same; the
+              difference is that the new socket changes how the engines react to
+              the artifact's presence, not just to its invocation. That's the
+              next layer of plumbing to add — and the only kind of plumbing the
+              four-slot recipe doesn't already cover.
+            </p>
+          </section>
+
+          <section id="engines" class="doc-subsection">
+            <h3>2.3 Engines</h3>
+            <p>
+              Picking up where §2.1 left off — once the sequencer has the
+              resolved <code>CommandToken[]</code>, three engines do the rest.
+            </p>
+
+            <figure class="doc-figure doc-figure--diagram">
+              <img
+                src="/documentation-img/13-engines.svg"
+                alt="Engines diagram: useGameLoop (hook) at the top ticks at 60Hz; useCharacterPhysics, useCharacterArticulation, and useMoveSequencer (all hooks) each subscribe to it. Beneath, useMoveSequencer dispatches per command token — moves to physics.applyImpulse and articulation.startMove, shapes to onSpawnSticker."
+              />
+              <figcaption>
+                How the engines interact. useGameLoop is the shared
+                heartbeat; physics and articulation tick independently;
+                the sequencer coordinates them.
+              </figcaption>
+            </figure>
+
+            <h4>Move sequencer (<code>useMoveSequencer</code>)</h4>
+            <p>
+              The move sequencer closes the loop on the command pipeline. It
+              reads a chain of resolved command tokens and queues physics and
+              articulation per link.
+            </p>
+            <ul>
+              <li>
+                For a <strong>move</strong> token, it fires the impulse
+                through <code>physics.applyImpulse</code> and hands
+                articulation a target pose, rotation, and duration.
+              </li>
+              <li>
+                For a <strong>shape</strong> token, it fires the spawn
+                callback — a sticker drops at the character's current
+                position. Shape tokens are zero-cost on the timing: they
+                drain instantly and the next link fires.
+              </li>
+            </ul>
+            <p>
+              Two clocks govern the link cadence. A fixed
+              <strong>metronome</strong> — each move link occupies
+              <code>MOVE_TEMPO / speed</code> seconds before the next link
+              fires — keeps chains rhythmic. A stretched
+              <strong>visual clock</strong> handles the launch case: when a
+              move's impulse sends the character airborne, the sequencer
+              predicts the airtime and hands articulation that longer window
+              so a flip's rotation rides the arc. A live-altitude check
+              completes the flip the moment the character actually lands.
+            </p>
+
+            <h4>Physics (<code>useCharacterPhysics</code> + <code>stepPhysics</code>)</h4>
+            <p>
+              Physics owns the character's position and velocity. It lives
+              in two parts:
+            </p>
+            <ul>
+              <li>
+                <code>stepPhysics(state, intent, dt, world)</code> is a
+                pure function — no React, no side effects. Given the
+                current physics <strong>state</strong> (position and
+                velocity), the user's <strong>intent</strong> (move left,
+                move right, jump), a time delta <strong>dt</strong>
+                (seconds since the last tick), and the
+                <strong>world</strong> parameters (gravity, friction,
+                bounds, ground line), it returns the next state.
+              </li>
+              <li>
+                <code>useCharacterPhysics</code> is the React hook that
+                wraps <code>stepPhysics</code>. It holds the live state,
+                calls <code>stepPhysics</code> every animation frame
+                (~60 times per second), and publishes the latest snapshot
+                to the renderer.
+              </li>
+            </ul>
+            <p>
+              The split exists so the heavy lifting (the physics math) can
+              be tested without React — call <code>stepPhysics</code> with
+              example inputs in a unit test and check the output. It also
+              means new physics behaviors (collidable rectangles, friction
+              zones, etc.) are added by changing the <strong>world</strong>
+              data passed in, not by rewriting the function. The ground is
+              one hardcoded plane at <code>y = 0</code> today; the planned
+              collision engine generalizes that into a loop over collidable
+              rectangles, threaded through the same
+              <code>world</code> parameter.
+            </p>
+
+            <h4>Articulation (<code>useCharacterArticulation</code>)</h4>
+            <p>
+              Articulation owns the character's pose and rotation. It tweens
+              limb positions and whole-body rotation from their current
+              values to the target the sequencer hands it, over a duration
+              the sequencer also hands it. It knows nothing about gravity,
+              velocity, or chain timing — its only contract is "tween these
+              limbs and this rotation over this many seconds." Two
+              invariants matter: tweens always start from the current value
+              (so an interrupted move interpolates smoothly), and rotations
+              snap forward (so an interrupted flip finishes its turn rather
+              than unwinding back to start).
+            </p>
+
+            <h4>Camera (<code>Playground.tsx</code> + <code>projection.ts</code>)</h4>
+            <p>
+              Not an engine — a stateful transform that converts world
+              coordinates to CSS pixels. Two pieces:
+            </p>
+            <ul>
+              <li>
+                <code>Playground.tsx</code> computes
+                <strong>cameraX</strong> (horizontal follow, clamped at
+                world edges) and <strong>cameraY</strong> (vertical
+                follow with a deadzone — ordinary jumps don't bob the
+                camera, only real launches climb past the threshold).
+              </li>
+              <li>
+                <code>projection.ts</code> exports
+                <code>projectWorldToScreen(point, camera)</code>, used by
+                both the character render and the
+                <code>StickerLayer</code>.
+              </li>
+            </ul>
+          </section>
+
+          <section id="end-to-end" class="doc-subsection">
+            <h3>2.4 End-to-end example: a typed command</h3>
+            <p>
+              Putting it together — one keystroke threads every layer
+              above:
+            </p>
+            <ol>
+              <li>
+                A keystroke lands in <code>CommandInput</code>, a
+                controlled input whose value lives in
+                <code>useCommand</code>. Space calls
+                <code>submit()</code>. <em>(§2.1)</em>
+              </li>
+              <li>
+                <code>submit()</code> trims the input and hands the string
+                to <code>resolveCommandChain</code>. The resolver splits on
+                dots and looks each segment up in the move and shape
+                libraries — the same libraries the labs wrote to (§2.2). A
+                failed segment flashes red and logs a strikethrough; a
+                clean chain flashes green and the resulting
+                <code>CommandToken[]</code> goes to
+                <code>useMoveSequencer.runChain</code>.
+              </li>
+              <li>
+                The sequencer dispatches per token type. A
+                <strong>move</strong> token fires its impulse through
+                <code>physics.applyImpulse</code> and cues articulation
+                with a target pose, rotation, and duration. A
+                <strong>shape</strong> token fires the
+                <code>onSpawnSticker</code> callback; the queue drains to
+                the next link immediately. <em>(§2.3)</em>
+              </li>
+              <li>
+                <code>useGameLoop</code> ticks at ~60Hz. Physics advances
+                position and velocity via <code>stepPhysics</code>;
+                articulation tweens pose and rotation toward their
+                targets. Each engine publishes a fresh snapshot per frame.
+              </li>
+              <li>
+                <code>PlaygroundView</code> sums the engine outputs each
+                render. <code>Playground.tsx</code> projects the
+                character's world coordinate to CSS pixels through
+                <code>projectWorldToScreen</code> — the same helper the
+                <code>StickerLayer</code> uses, so character and stickers
+                stay locked to the same world frame.
+                <code>Character</code> paints.
+              </li>
+              <li>
+                When the sequencer's metronome slot elapses, the next
+                link in the chain fires. If the previous move launched
+                the character airborne, the live-altitude check completes
+                the flip's rotation the instant the character actually
+                lands — even if the predicted airtime was off.
+              </li>
+            </ol>
+            <p>
+              One typed command, one path through every section of this
+              page.
+            </p>
+          </section>
+        </section>
+
+        <!-- ============================================================ -->
+
+        <section id="reference" class="doc-section">
+          <h2>3. Reference</h2>
+          <p>
+            Lookup-shaped material — types, hooks, components, file locations,
+            project terms. Use this when you know what you're looking for and
+            need to know where it lives.
+          </p>
+
+          <section id="type-catalog" class="doc-subsection">
+            <h3>3.1 Types</h3>
+            <p>
+              Every artifact type lives in <code>src/data/</code>. Pure shapes;
+              no React, no engine coupling.
+            </p>
+            <dl class="doc-deflist">
+              <dt><code>Avatar</code></dt>
+              <dd>
+                <code>src/data/avatar.ts</code> — the user's character:
+                <code>{ animal, adjective, biome }</code>. Resolved into a rig,
+                palette, and biome scene at render time.
+              </dd>
+
+              <dt><code>CharacterPose</code></dt>
+              <dd>
+                <code>src/data/characters/types.ts</code> — the body's form at
+                an instant: limb states and mouth state. The articulation engine
+                tweens between poses.
+              </dd>
+
+              <dt><code>Move</code></dt>
+              <dd>
+                <code>src/data/labs/dance-moves/dance.ts</code> — the Dance
+                Lab's artifact:
+                <code
+                  >{ id, primary, secondary?, speed, targetPose?, forceVector?,
+                  rotationY?, rotationZ? }</code
+                >. Identified by command names; played by the sequencer.
+              </dd>
+
+              <dt><code>Shape</code></dt>
+              <dd>
+                <code>src/data/labs/shapes/grammar.ts</code> — the Shape Lab's
+                artifact: <code>{ id, name, source, colorSeed }</code>. The
+                grammar source is the source of truth; geometry recomputes from
+                source at render time.
+              </dd>
+
+              <dt><code>Sticker</code></dt>
+              <dd>
+                <code>src/data/labs/shapes/stickers.ts</code> — a placed Shape
+                in the world: <code>{ id, shape: Shape, worldX, worldY }</code>.
+                The Sticker carries its own id (so the same Shape can be placed
+                multiple times) and a frozen snapshot of the Shape it came from,
+                so later edits to the underlying Shape don't mutate
+                already-placed Stickers.
+              </dd>
+
+              <dt><code>CommandToken</code></dt>
+              <dd>
+                <code>src/data/command.ts</code> — the resolver's output: a
+                discriminated union of <code>{ type: "move", move }</code> and
+                <code>{ type: "shape", shape }</code>. Lives at the data root
+                because it bridges both labs; the sequencer dispatches by
+                <code>type</code>.
+              </dd>
+            </dl>
+          </section>
+
+          <section id="engine-hooks" class="doc-subsection">
+            <h3>3.2 Engine hooks</h3>
+            <p>
+              Every stateful hook lives in <code>src/engine/</code>. They know
+              about types and pure helpers, never about views.
+            </p>
+            <dl class="doc-deflist">
+              <dt><code>useGameLoop</code></dt>
+              <dd>
+                A thin <code>requestAnimationFrame</code> ticker. Calls
+                <code>onTick(dt)</code> each frame; each engine subscribes
+                independently.
+              </dd>
+
+              <dt><code>useCharacterPhysics</code></dt>
+              <dd>
+                The motion engine. Wraps the pure
+                <code>stepPhysics</code> function in a frame loop and a
+                snapshot. Exposes <code>position</code>, <code>resting</code>,
+                <code>setMovingLeft/Right</code>, <code>jump</code>,
+                <code>applyImpulse</code>, <code>teleport</code>.
+              </dd>
+
+              <dt><code>useCharacterArticulation</code></dt>
+              <dd>
+                The form engine. Owns pose and rotation tweens. Exposes
+                <code>currentPose</code>, <code>currentRotation</code>,
+                <code>startMove</code>, <code>finishEarly</code>,
+                <code>reset</code>, <code>isAnimating</code>.
+              </dd>
+
+              <dt><code>useMoveSequencer</code></dt>
+              <dd>
+                The conductor. Accepts <code>CommandToken[]</code> and cues
+                physics + articulation per link, dispatching by token type. Owns
+                the two clocks (sequence metronome, visual duration).
+              </dd>
+
+              <dt><code>useCommandRunner</code></dt>
+              <dd>
+                The typed-command input stream. Owns the input string, submit
+                logic, flash state, and the self-pruning history list. Resolves
+                chains via
+                <code>resolveCommandChain</code> and hands tokens to the
+                sequencer.
+              </dd>
+
+              <dt><code>useKeyboardInput</code></dt>
+              <dd>
+                Maps keydown/keyup events to direct character intent callbacks
+                (left, right, jump). A <code>disabled</code>
+                flag silences it when the command input is focused or customize
+                mode is open.
+              </dd>
+
+              <dt><code>useLocalStorage</code></dt>
+              <dd>
+                Typed persistence. Same signature as
+                <code>useState</code> — <code>[value, setValue]</code>. Reads
+                once on mount; writes through on update. The editor/playground
+                bus.
+              </dd>
+            </dl>
+          </section>
+
+          <section id="component-hierarchy" class="doc-subsection">
+            <h3>3.3 Component hierarchy</h3>
+            <p>
+              The top-level <code>App</code> routes between three views by a
+              single <code>currentView</code> state. Only one view mounts at a
+              time; the others are torn down completely.
+              <code>HamburgerMenu</code> is scoped to the playground branch —
+              it mounts alongside the playground and unmounts when a lab is
+              opened, so the slide-in nav is only present when there is a
+              playground behind it to slide over.
+            </p>
+            <pre class="doc-tree">
+App
+├── Playground branch              (currentView === "playground")
+│   ├── HamburgerMenu              (fixed top-right toggle + slide-in nav)
+│   ├── PlaygroundView
+│   │   └── Playground             (camera + projection)
+│   │       ├── Biome              (sky + parallax layers)
+│   │       ├── StickerLayer       (placed shapes, projected)
+│   │       ├── Character          (animal SVG + pose paths)
+│   │       ├── WelcomeBanner      (first-load greeting)
+│   │       ├── CustomizeAvatar    (slide-over panel)
+│   │       ├── CommandInput       (fixed bottom-center)
+│   │       └── CommandHistory     (fixed bottom-left)
+│   └── LabSelection               (lab cards, bottom strip)
+├── DanceLab                       (currentView === "danceLab")
+│   ├── MoveLibrary                (saved moves list)
+│   ├── Character (preview)        (live ragdoll)
+│   ├── PoseHandles                (limb drag handles)
+│   ├── ForceHandle                (force vector handle)
+│   └── MoveForm                   (name/speed/rotation fields)
+└── ShapeLab                       (currentView === "shapeLab")
+    ├── ShapeLibrary               (saved shapes list)
+    ├── ShapeRenderer (preview)    (live polygon preview)
+    └── ShapeForm                  (grammar/name fields)
+            </pre>
+            <p>
+              The full-unmount-on-view-switch is the architectural guarantee
+              that backs the library-freshness invariant in §2.5.
+            </p>
+          </section>
+
+          <section id="file-map" class="doc-subsection">
+            <h3>3.4 File map</h3>
+            <p>
+              Top-level <code>src/</code> structure, with one line per folder.
+            </p>
+            <dl class="doc-deflist">
+              <dt><code>src/data/</code></dt>
+              <dd>
+                Pure types and helpers. <code>characters/</code> is reserved for
+                character aesthetics (pose types, palette, animal rigs).
+                <code>labs/</code> groups per-lab artifact data —
+                <code>labs/dance-moves/dance.ts</code> for moves,
+                <code>labs/shapes/grammar.ts</code> for shape grammar,
+                <code>labs/shapes/stickers.ts</code> for placed-shape artifacts.
+                <code>command.ts</code> at the data root holds the cross-lab
+                command surface (CommandToken, the resolver, the cross-library
+                collision check). Plus <code>biomes/</code> (scenes) and
+                standalone files (<code>avatar.ts</code>, <code>ids.ts</code>).
+              </dd>
+
+              <dt><code>src/engine/</code></dt>
+              <dd>
+                Stateful hooks. The game loop, the two engines, the conductor,
+                the input stream, persistence, keyboard mapping. Plus
+                <code>projection.ts</code> — the shared world-to-screen camera
+                helper.
+              </dd>
+
+              <dt><code>src/components/</code></dt>
+              <dd>
+                Views. <code>playground/</code> holds the playground view and
+                its overlays (<code>Playground</code>,
+                <code>PlaygroundView</code>, <code>Biome</code>,
+                <code>CommandInput</code>, <code>CommandHistory</code>,
+                <code>StickerLayer</code>, <code>WelcomeBanner</code>).
+                Per-lab editors live in <code>labs/dance-lab/</code> and
+                <code>labs/shape-lab/</code> under a shared
+                <code>labs/lab.css</code> for the common header/library/main
+                chrome. Avatar customization lives in
+                <code>customize-avatar/</code>. Top-level chrome shared
+                across the playground branch sits directly under
+                <code>components/</code>:
+                <code>HamburgerMenu</code> (slide-in nav),
+                <code>LabSelection</code> (the strip of lab cards beneath
+                the playground), and <code>Character</code> (the animal SVG
+                renderer used by both the playground and the dance lab).
+              </dd>
+
+              <dt><code>public/</code></dt>
+              <dd>
+                Static assets and standalone HTML pages
+                (<code>documentation.html</code>,
+                <code>about.html</code>). Served as-is by CRA.
+              </dd>
+            </dl>
+          </section>
+
+          <section id="glossary" class="doc-subsection">
+            <h3>3.5 Glossary</h3>
+            <dl class="doc-deflist">
+              <dt>Artifact</dt>
+              <dd>
+                A user-authored named thing — a Move, a Shape — that the
+                playground knows how to invoke.
+              </dd>
+
+              <dt>Socket</dt>
+              <dd>
+                One of two paths an artifact can take to affect the playground:
+                invocation (event-driven) or simulation (frame-driven).
+              </dd>
+
+              <dt>Invocation</dt>
+              <dd>
+                Engine touches the artifact only during dispatched events. Moves
+                and shape-spawns are invocation-shaped today.
+              </dd>
+
+              <dt>Simulation</dt>
+              <dd>
+                Engine touches the artifact every frame, reconciling the
+                character against it. Reserved for future collidable artifacts.
+              </dd>
+
+              <dt>Draft / Commit / Enforce</dt>
+              <dd>
+                The three-step contract between an editor and the playground:
+                edit a working copy, write to storage, read from storage at the
+                consumer.
+              </dd>
+
+              <dt>The metronome</dt>
+              <dd>
+                The sequencer's fixed clock — each chain link occupies
+                <code>MOVE_TEMPO / speed</code> seconds before the next fires.
+              </dd>
+
+              <dt>The visual clock</dt>
+              <dd>
+                The sequencer's stretched clock for the articulator. Lets a
+                launch's flip spread across the predicted airtime rather than
+                the metronome beat.
+              </dd>
+
+              <dt>The four-slot recipe</dt>
+              <dd>
+                A new module needs an artifact type, an editor, a storage key,
+                and a socket choice. See §2.7.
+              </dd>
+
+              <dt>The dependency triangle</dt>
+              <dd>
+                <code>data/</code> → <code>engine/</code> →
+                <code>components/</code>, imports only down. See §2.2.
+              </dd>
+            </dl>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <div class="site-footer__attribution">
+        &copy; Urban Griots Collective 2026
+      </div>
+      <nav class="site-footer__nav" aria-label="Site">
+        <a class="site-footer__link" href="/">Playground</a>
+        <a class="site-footer__link" href="/about.html">About</a>
+        <a class="site-footer__link" href="/documentation.html"
+          >Documentation</a
+        >
+      </nav>
+    </footer>
+  </body>
+</html>
