@@ -464,8 +464,8 @@ A self-map of where the project exercises core front-end skills.
 ## AI usage
 
 Per the course AI policy, this section discloses the use of AI on the project.
-A full exchange transcript with the relevant sections highlighted accompanies
-the submission as a separate appendix.
+A set of representative exchange excerpts accompanies the submission as a
+separate appendix.
 
 - **Tool:** Claude Opus 4.8 (1M context), via Claude Code.
 - **How it was used:**
@@ -479,6 +479,8 @@ the submission as a separate appendix.
   - asset-anatomy conceptualization (the necessary dimensions of the SVG
     canvas, composing a character from interchangeable parts, and how that maps
     back to the type design),
+  - documentation orchestration — structuring and organizing this README and
+    the documentation page,
   - scope management — deciding what to defer and what to cut to keep the
     project tractable within the term.
 - **Why:** much of the implemented system runs beyond the minimum the
