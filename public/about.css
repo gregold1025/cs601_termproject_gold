@@ -72,6 +72,75 @@
   font-style: italic;
 }
 
+/* ---------- learning outcomes grid ---------- */
+
+/* The labs-and-outcomes section uses a <dl> for semantic name→outcome
+   pairing, wrapped in <div>s (HTML5.1 allows this inside <dl>) so each
+   pair can lay out as a single grid row. */
+.about__outcomes {
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.about__outcome {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 24px;
+  align-items: start;
+  padding: 16px 20px;
+  background: var(--doc-bg-deep);
+  border: 1px solid var(--doc-rule);
+  border-radius: 8px;
+}
+
+.about__outcome dt,
+.about__outcome dd {
+  margin: 0;
+}
+
+.about__outcome-name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--doc-ink-bright);
+  font-size: 16px;
+}
+
+.about__outcome-text {
+  color: var(--doc-ink-soft);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* Pill-style status tag. Shipped reads as the accent color; planned
+   uses the muted ink so it sits back. */
+.about__outcome-status {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: var(--doc-accent);
+  background: rgba(184, 212, 216, 0.12);
+}
+
+.about__outcome-status--planned {
+  color: var(--doc-ink-muted);
+  background: rgba(138, 144, 151, 0.14);
+}
+
+/* Planned rows sit at lowered emphasis so the eye lands on what
+   actually ships first. */
+.about__outcome--planned {
+  opacity: 0.72;
+}
+
 /* ---------- link ---------- */
 
 .about__link {
@@ -109,5 +178,12 @@
 
   .about__section h2 {
     font-size: 19px;
+  }
+
+  /* Stack name above outcome at narrow widths. */
+  .about__outcome {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px 16px;
   }
 }
