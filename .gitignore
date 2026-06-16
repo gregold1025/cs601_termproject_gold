@@ -24,3 +24,8 @@ yarn-error.log*
 
 # editor
 .vscode/
+
+# internal docs (kept local, not published)
+ARCHITECTURE.html
+ARCHITECTURE.md
+DOCKET.md

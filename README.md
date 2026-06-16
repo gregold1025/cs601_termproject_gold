@@ -126,11 +126,9 @@ math is a pure `stepPhysics` function in `engine/stepPhysics.ts`, tested in
 isolation, and `useCharacterPhysics` is only the thin React wrapper that
 advances it each frame.
 
-A visual diagram and a longer prose companion are in
-[`ARCHITECTURE.html`](ARCHITECTURE.html) and
-[`ARCHITECTURE.md`](ARCHITECTURE.md). The in-app
-[Documentation page](public/documentation.html) covers the same ground at
-three altitudes (User, System, Reference) with screenshots and diagrams.
+The in-app [Documentation page](public/documentation.html) covers the same
+ground at three altitudes (User, System, Reference) with screenshots and
+diagrams.
 
 ---
 
@@ -496,8 +494,6 @@ the submission as a separate appendix.
 - **[About](public/about.html)** — the philosophy and educational premise.
 - **[Documentation](public/documentation.html)** — the full manual: User,
   System, and Reference, with screenshots and diagrams.
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** / **[ARCHITECTURE.html](ARCHITECTURE.html)**
-  — the architecture, in prose and as a diagram.
 
 ---
 
