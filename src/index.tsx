@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { seedDefaultLibraries } from './data/defaults';
+import { seedDefaultLibraries } from './engine/seedDefaults';
 
 // Must run before any useLocalStorage initializer fires — children read
 // localStorage during their own useState(() => ...) initializers, which

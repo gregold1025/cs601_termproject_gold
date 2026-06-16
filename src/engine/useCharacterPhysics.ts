@@ -12,7 +12,7 @@
 // only extra rule (snap home when a move finishes and the body has
 // settled) lives in the lab, built on `resting` + `teleport`.
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useGameLoop } from "./useGameLoop";
 import {
   stepPhysics,
@@ -83,33 +83,48 @@ export function useCharacterPhysics(
       dt,
       world,
     );
-    setSnapshot({
-      position: stateRef.current.position,
-      resting: isResting(stateRef.current),
-    });
+    const position = stateRef.current.position;
+    const resting = isResting(stateRef.current);
+    // Skip the render when nothing observable moved — at 60Hz a resting
+    // character would otherwise publish an identical snapshot every tick.
+    setSnapshot((prev) =>
+      prev.position.x === position.x &&
+      prev.position.y === position.y &&
+      prev.resting === resting
+        ? prev
+        : { position, resting },
+    );
   });
+
+  // Stable across renders so consumers can list them in effect deps
+  // without re-running every frame.
+  const setMovingLeft = useCallback((moving: boolean) => {
+    intentRef.current.left = moving;
+  }, []);
+  const setMovingRight = useCallback((moving: boolean) => {
+    intentRef.current.right = moving;
+  }, []);
+  const jump = useCallback(() => {
+    // Only jump from the ground (no double-jump yet).
+    if (stateRef.current.position.y >= 0) {
+      stateRef.current.velocity.y = -jumpSpeed;
+    }
+  }, [jumpSpeed]);
+  const applyImpulse = useCallback((vx: number, vy: number) => {
+    stateRef.current.velocity.x += vx;
+    stateRef.current.velocity.y += vy;
+  }, []);
+  const teleport = useCallback((x: number, y: number) => {
+    stateRef.current = { position: { x, y }, velocity: { x: 0, y: 0 } };
+  }, []);
 
   return {
     position: snapshot.position,
     resting: snapshot.resting,
-    setMovingLeft: (moving) => {
-      intentRef.current.left = moving;
-    },
-    setMovingRight: (moving) => {
-      intentRef.current.right = moving;
-    },
-    jump: () => {
-      // Only jump from the ground (no double-jump yet).
-      if (stateRef.current.position.y >= 0) {
-        stateRef.current.velocity.y = -jumpSpeed;
-      }
-    },
-    applyImpulse: (vx, vy) => {
-      stateRef.current.velocity.x += vx;
-      stateRef.current.velocity.y += vy;
-    },
-    teleport: (x, y) => {
-      stateRef.current = { position: { x, y }, velocity: { x: 0, y: 0 } };
-    },
+    setMovingLeft,
+    setMovingRight,
+    jump,
+    applyImpulse,
+    teleport,
   };
 }

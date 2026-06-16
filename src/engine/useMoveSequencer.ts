@@ -181,9 +181,9 @@ export function useMoveSequencer(deps: SequencerDeps): MoveSequencer {
       queueRef.current = drainShapes(queueRef.current);
       const next = queueRef.current.shift();
       if (next) {
-        // After drainSpawns the head is necessarily a move.
+        // drainShapes guarantees the head is a move; a shape here is a bug.
         if (next.type === "move") beginMove(next.move);
-        else assertNever(next.type as never);
+        else throw new Error(`expected a move at chain head, got ${next.type}`);
       } else if (!articulation.isAnimating) {
         // Chain exhausted and the visual has fully played out.
         currentRef.current = null;
@@ -203,8 +203,8 @@ export function useMoveSequencer(deps: SequencerDeps): MoveSequencer {
       if (remaining.length === 0) return;
       const first = remaining[0];
       if (first.type !== "move") {
-        // Unreachable: drainShapes guarantees the head is a move.
-        assertNever(first.type as never);
+        // drainShapes guarantees the head is a move; a shape here is a bug.
+        throw new Error(`expected a move at chain head, got ${first.type}`);
       }
       queueRef.current = remaining.slice(1);
       beginMove(first.move);

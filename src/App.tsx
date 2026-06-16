@@ -8,7 +8,8 @@ import { HamburgerMenu } from "./components/HamburgerMenu";
 import { useLocalStorage } from "./engine/useLocalStorage";
 import { Avatar, AVATAR_KEY } from "./data/avatar";
 
-// Placeholder until onboarding flow exists.
+// Default avatar for a first-time visitor; returning visitors load
+// whatever they last saved (see useLocalStorage call below).
 const INITIAL_AVATAR: Avatar = {
   animal: "pig",
   adjective: "friendly",

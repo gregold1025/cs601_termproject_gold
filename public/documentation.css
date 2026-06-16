@@ -245,28 +245,6 @@
   text-align: center;
 }
 
-/* Yellow boxes that stand in for unmade screenshots/diagrams. The
-   monospaced label tells the editor exactly what to drop in. */
-.doc-placeholder {
-  background: #f3e25c;
-  color: #2a2010;
-  padding: 56px 24px;
-  border: 2px dashed #b8a020;
-  border-radius: 8px;
-  text-align: center;
-  font-family: ui-monospace, Consolas, "SF Mono", Menlo, monospace;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  line-height: 1.5;
-}
-
-.doc-placeholder code {
-  background: rgba(0, 0, 0, 0.12);
-  border: none;
-  color: #2a2010;
-}
-
 /* ---------- reference helpers ---------- */
 
 /* Definition list used for type catalog, hook catalog, file map, and

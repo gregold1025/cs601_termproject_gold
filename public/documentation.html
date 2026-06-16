@@ -11,15 +11,10 @@
   <body>
     <header class="site-header">
       <a class="site-brand" href="/">
-        <img
-          class="site-brand__logo"
-          src="/ug-logo-white.png"
-          alt=""
-        />
+        <img class="site-brand__logo" src="/ug-logo-white.png" alt="" />
         <span class="site-brand__wordmark"
-          ><span class="site-brand__letter">U</span><span
-            class="site-brand__letter site-brand__letter--orange"
-            >G</span
+          ><span class="site-brand__letter">U</span
+          ><span class="site-brand__letter site-brand__letter--orange">G</span
           >Playground</span
         >
         <span class="site-brand__divider">/</span>
@@ -458,9 +453,9 @@
                 alt="Engines diagram: useGameLoop (hook) at the top ticks at 60Hz; useCharacterPhysics, useCharacterArticulation, and useMoveSequencer (all hooks) each subscribe to it. Beneath, useMoveSequencer dispatches per command token — moves to physics.applyImpulse and articulation.startMove, shapes to onSpawnSticker."
               />
               <figcaption>
-                How the engines interact. useGameLoop is the shared
-                heartbeat; physics and articulation tick independently;
-                the sequencer coordinates them.
+                How the engines interact. useGameLoop is the shared heartbeat;
+                physics and articulation tick independently; the sequencer
+                coordinates them.
               </figcaption>
             </figure>
 
@@ -472,81 +467,84 @@
             </p>
             <ul>
               <li>
-                For a <strong>move</strong> token, it fires the impulse
-                through <code>physics.applyImpulse</code> and hands
-                articulation a target pose, rotation, and duration.
+                For a <strong>move</strong> token, it fires the impulse through
+                <code>physics.applyImpulse</code> and hands articulation a
+                target pose, rotation, and duration.
               </li>
               <li>
-                For a <strong>shape</strong> token, it fires the spawn
-                callback — a sticker drops at the character's current
-                position. Shape tokens are zero-cost on the timing: they
-                drain instantly and the next link fires.
+                For a <strong>shape</strong> token, it fires the spawn callback
+                — a sticker drops at the character's current position. Shape
+                tokens are zero-cost on the timing: they drain instantly and the
+                next link fires.
               </li>
             </ul>
             <p>
               Two clocks govern the link cadence. A fixed
               <strong>metronome</strong> — each move link occupies
-              <code>MOVE_TEMPO / speed</code> seconds before the next link
-              fires — keeps chains rhythmic. A stretched
+              <code>MOVE_TEMPO / speed</code> seconds before the next link fires
+              — keeps chains rhythmic. A stretched
               <strong>visual clock</strong> handles the launch case: when a
               move's impulse sends the character airborne, the sequencer
-              predicts the airtime and hands articulation that longer window
-              so a flip's rotation rides the arc. A live-altitude check
-              completes the flip the moment the character actually lands.
+              predicts the airtime and hands articulation that longer window so
+              a flip's rotation rides the arc. A live-altitude check completes
+              the flip the moment the character actually lands.
             </p>
 
-            <h4>Physics (<code>useCharacterPhysics</code> + <code>stepPhysics</code>)</h4>
+            <h4>
+              Physics (<code>useCharacterPhysics</code> +
+              <code>stepPhysics</code>)
+            </h4>
             <p>
-              Physics owns the character's position and velocity. It lives
-              in two parts:
+              Physics owns the character's position and velocity. It lives in
+              two parts:
             </p>
             <ul>
               <li>
-                <code>stepPhysics(state, intent, dt, world)</code> is a
-                pure function — no React, no side effects. Given the
-                current physics <strong>state</strong> (position and
-                velocity), the user's <strong>intent</strong> (move left,
-                move right, jump), a time delta <strong>dt</strong>
+                <code>stepPhysics(state, intent, dt, world)</code> is a pure
+                function — no React, no side effects. Given the current physics
+                <strong>state</strong> (position and velocity), the user's
+                <strong>intent</strong> (move left, move right, jump), a time
+                delta <strong>dt</strong>
                 (seconds since the last tick), and the
-                <strong>world</strong> parameters (gravity, friction,
-                bounds, ground line), it returns the next state.
+                <strong>world</strong> parameters (gravity, friction, bounds,
+                ground line), it returns the next state.
               </li>
               <li>
-                <code>useCharacterPhysics</code> is the React hook that
-                wraps <code>stepPhysics</code>. It holds the live state,
-                calls <code>stepPhysics</code> every animation frame
-                (~60 times per second), and publishes the latest snapshot
-                to the renderer.
+                <code>useCharacterPhysics</code> is the React hook that wraps
+                <code>stepPhysics</code>. It holds the live state, calls
+                <code>stepPhysics</code> every animation frame (~60 times per
+                second), and publishes the latest snapshot to the renderer.
               </li>
             </ul>
             <p>
-              The split exists so the heavy lifting (the physics math) can
-              be tested without React — call <code>stepPhysics</code> with
-              example inputs in a unit test and check the output. It also
-              means new physics behaviors (collidable rectangles, friction
-              zones, etc.) are added by changing the <strong>world</strong>
-              data passed in, not by rewriting the function. The ground is
-              one hardcoded plane at <code>y = 0</code> today; the planned
-              collision engine generalizes that into a loop over collidable
-              rectangles, threaded through the same
-              <code>world</code> parameter.
+              The split exists so the heavy lifting (the physics math) can be
+              tested without React — call <code>stepPhysics</code> with example
+              inputs in a unit test and check the output. It also means new
+              physics behaviors (collidable rectangles, friction zones, etc.)
+              are added by changing the <strong>world</strong> data passed in,
+              not by rewriting the function. The ground is one hardcoded plane
+              at <code>y = 0</code> today; the planned collision engine
+              generalizes that into a loop over collidable rectangles, threaded
+              through the same <code>world</code> parameter.
             </p>
 
             <h4>Articulation (<code>useCharacterArticulation</code>)</h4>
             <p>
               Articulation owns the character's pose and rotation. It tweens
-              limb positions and whole-body rotation from their current
-              values to the target the sequencer hands it, over a duration
-              the sequencer also hands it. It knows nothing about gravity,
-              velocity, or chain timing — its only contract is "tween these
-              limbs and this rotation over this many seconds." Two
-              invariants matter: tweens always start from the current value
-              (so an interrupted move interpolates smoothly), and rotations
-              snap forward (so an interrupted flip finishes its turn rather
-              than unwinding back to start).
+              limb positions and whole-body rotation from their current values
+              to the target the sequencer hands it, over a duration the
+              sequencer also hands it. It knows nothing about gravity, velocity,
+              or chain timing — its only contract is "tween these limbs and this
+              rotation over this many seconds." Two invariants matter: tweens
+              always start from the current value (so an interrupted move
+              interpolates smoothly), and rotations snap forward (so an
+              interrupted flip finishes its turn rather than unwinding back to
+              start).
             </p>
 
-            <h4>Camera (<code>Playground.tsx</code> + <code>projection.ts</code>)</h4>
+            <h4>
+              Camera (<code>Playground.tsx</code> + <code>projection.ts</code>)
+            </h4>
             <p>
               Not an engine — a stateful transform that converts world
               coordinates to CSS pixels. Two pieces:
@@ -554,16 +552,15 @@
             <ul>
               <li>
                 <code>Playground.tsx</code> computes
-                <strong>cameraX</strong> (horizontal follow, clamped at
-                world edges) and <strong>cameraY</strong> (vertical
-                follow with a deadzone — ordinary jumps don't bob the
-                camera, only real launches climb past the threshold).
+                <strong>cameraX</strong> (horizontal follow, clamped at world
+                edges) and <strong>cameraY</strong> (vertical follow with a
+                deadzone — ordinary jumps don't bob the camera, only real
+                launches climb past the threshold).
               </li>
               <li>
                 <code>projection.ts</code> exports
-                <code>projectWorldToScreen(point, camera)</code>, used by
-                both the character render and the
-                <code>StickerLayer</code>.
+                <code>projectWorldToScreen(point, camera)</code>, used by both
+                the character render and the <code>StickerLayer</code>.
               </li>
             </ul>
           </section>
@@ -571,61 +568,56 @@
           <section id="end-to-end" class="doc-subsection">
             <h3>2.4 End-to-end example: a typed command</h3>
             <p>
-              Putting it together — one keystroke threads every layer
-              above:
+              Putting it together — one keystroke threads every layer above:
             </p>
             <ol>
               <li>
-                A keystroke lands in <code>CommandInput</code>, a
-                controlled input whose value lives in
-                <code>useCommand</code>. Space calls
+                A keystroke lands in <code>CommandInput</code>, a controlled
+                input whose value lives in <code>useCommand</code>. Space calls
                 <code>submit()</code>. <em>(§2.1)</em>
               </li>
               <li>
-                <code>submit()</code> trims the input and hands the string
-                to <code>resolveCommandChain</code>. The resolver splits on
-                dots and looks each segment up in the move and shape
-                libraries — the same libraries the labs wrote to (§2.2). A
-                failed segment flashes red and logs a strikethrough; a
-                clean chain flashes green and the resulting
-                <code>CommandToken[]</code> goes to
+                <code>submit()</code> trims the input and hands the string to
+                <code>resolveCommandChain</code>. The resolver splits on dots
+                and looks each segment up in the move and shape libraries — the
+                same libraries the labs wrote to (§2.2). A failed segment
+                flashes red and logs a strikethrough; a clean chain flashes
+                green and the resulting <code>CommandToken[]</code> goes to
                 <code>useMoveSequencer.runChain</code>.
               </li>
               <li>
                 The sequencer dispatches per token type. A
                 <strong>move</strong> token fires its impulse through
-                <code>physics.applyImpulse</code> and cues articulation
-                with a target pose, rotation, and duration. A
+                <code>physics.applyImpulse</code> and cues articulation with a
+                target pose, rotation, and duration. A
                 <strong>shape</strong> token fires the
-                <code>onSpawnSticker</code> callback; the queue drains to
-                the next link immediately. <em>(§2.3)</em>
+                <code>onSpawnSticker</code> callback; the queue drains to the
+                next link immediately. <em>(§2.3)</em>
               </li>
               <li>
                 <code>useGameLoop</code> ticks at ~60Hz. Physics advances
-                position and velocity via <code>stepPhysics</code>;
-                articulation tweens pose and rotation toward their
-                targets. Each engine publishes a fresh snapshot per frame.
+                position and velocity via <code>stepPhysics</code>; articulation
+                tweens pose and rotation toward their targets. Each engine
+                publishes a fresh snapshot per frame.
               </li>
               <li>
-                <code>PlaygroundView</code> sums the engine outputs each
-                render. <code>Playground.tsx</code> projects the
-                character's world coordinate to CSS pixels through
+                <code>PlaygroundView</code> sums the engine outputs each render.
+                <code>Playground.tsx</code> projects the character's world
+                coordinate to CSS pixels through
                 <code>projectWorldToScreen</code> — the same helper the
-                <code>StickerLayer</code> uses, so character and stickers
-                stay locked to the same world frame.
-                <code>Character</code> paints.
+                <code>StickerLayer</code> uses, so character and stickers stay
+                locked to the same world frame. <code>Character</code> paints.
               </li>
               <li>
-                When the sequencer's metronome slot elapses, the next
-                link in the chain fires. If the previous move launched
-                the character airborne, the live-altitude check completes
-                the flip's rotation the instant the character actually
-                lands — even if the predicted airtime was off.
+                When the sequencer's metronome slot elapses, the next link in
+                the chain fires. If the previous move launched the character
+                airborne, the live-altitude check completes the flip's rotation
+                the instant the character actually lands — even if the predicted
+                airtime was off.
               </li>
             </ol>
             <p>
-              One typed command, one path through every section of this
-              page.
+              One typed command, one path through every section of this page.
             </p>
           </section>
         </section>
@@ -771,10 +763,10 @@
               The top-level <code>App</code> routes between three views by a
               single <code>currentView</code> state. Only one view mounts at a
               time; the others are torn down completely.
-              <code>HamburgerMenu</code> is scoped to the playground branch —
-              it mounts alongside the playground and unmounts when a lab is
-              opened, so the slide-in nav is only present when there is a
-              playground behind it to slide over.
+              <code>HamburgerMenu</code> is scoped to the playground branch — it
+              mounts alongside the playground and unmounts when a lab is opened,
+              so the slide-in nav is only present when there is a playground
+              behind it to slide over.
             </p>
             <pre class="doc-tree">
 App
@@ -841,16 +833,15 @@ App
                 its overlays (<code>Playground</code>,
                 <code>PlaygroundView</code>, <code>Biome</code>,
                 <code>CommandInput</code>, <code>CommandHistory</code>,
-                <code>StickerLayer</code>, <code>WelcomeBanner</code>).
-                Per-lab editors live in <code>labs/dance-lab/</code> and
+                <code>StickerLayer</code>, <code>WelcomeBanner</code>). Per-lab
+                editors live in <code>labs/dance-lab/</code> and
                 <code>labs/shape-lab/</code> under a shared
                 <code>labs/lab.css</code> for the common header/library/main
                 chrome. Avatar customization lives in
-                <code>customize-avatar/</code>. Top-level chrome shared
-                across the playground branch sits directly under
-                <code>components/</code>:
-                <code>HamburgerMenu</code> (slide-in nav),
-                <code>LabSelection</code> (the strip of lab cards beneath
+                <code>customize-avatar/</code>. Top-level chrome shared across
+                the playground branch sits directly under
+                <code>components/</code>: <code>HamburgerMenu</code> (slide-in
+                nav), <code>LabSelection</code> (the strip of lab cards beneath
                 the playground), and <code>Character</code> (the animal SVG
                 renderer used by both the playground and the dance lab).
               </dd>
@@ -909,18 +900,6 @@ App
                 The sequencer's stretched clock for the articulator. Lets a
                 launch's flip spread across the predicted airtime rather than
                 the metronome beat.
-              </dd>
-
-              <dt>The four-slot recipe</dt>
-              <dd>
-                A new module needs an artifact type, an editor, a storage key,
-                and a socket choice. See §2.7.
-              </dd>
-
-              <dt>The dependency triangle</dt>
-              <dd>
-                <code>data/</code> → <code>engine/</code> →
-                <code>components/</code>, imports only down. See §2.2.
               </dd>
             </dl>
           </section>

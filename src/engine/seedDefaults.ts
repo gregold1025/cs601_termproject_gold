@@ -1,4 +1,4 @@
-// defaults — library seed for first-load demos.
+// seedDefaults — library seed for first-load demos.
 //
 // On a fresh visit (no library key written to localStorage yet), the
 // move and shape libraries seed with these defaults so the playground
@@ -13,11 +13,13 @@
 // Defaults use stable IDs (move-default-*, shape-default-*) so a future
 // re-seed of the same defaults stays idempotent.
 //
-// Must run before any useLocalStorage initializer fires, so it's called
-// at the top of src/index.tsx before ReactDOM.createRoot(...).render(...).
+// Lives in engine/ rather than data/ because seeding is a runtime side
+// effect on localStorage, not pure data. Must run before any
+// useLocalStorage initializer fires, so it's called at the top of
+// src/index.tsx before ReactDOM.createRoot(...).render(...).
 
-import { Move, MOVE_LIBRARY_KEY } from "./labs/dance-moves/dance";
-import { Shape, SHAPE_LIBRARY_KEY } from "./labs/shapes/grammar";
+import { Move, MOVE_LIBRARY_KEY } from "../data/labs/dance-moves/dance";
+import { Shape, SHAPE_LIBRARY_KEY } from "../data/labs/shapes/grammar";
 
 // --- Defaults ---------------------------------------------------------------
 

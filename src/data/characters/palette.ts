@@ -16,7 +16,6 @@ export type Palette = {
 };
 
 // Canonical mapping: adjective → palette.
-// Hex values are placeholder defaults; refine against the brand later.
 export const ADJECTIVE_PALETTES: Record<Adjective, Palette> = {
   clever: { light: "#8FB8FF", dark: "#1B3E8C" }, // blue
   friendly: { light: "#FFB870", dark: "#B0530B" }, // orange

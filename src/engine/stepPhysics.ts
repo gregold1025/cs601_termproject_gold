@@ -68,10 +68,8 @@ export function stepPhysics(
     vx *= Math.max(0, 1 - world.friction * dt);
   }
 
-  // Gravity always pulls down (positive y).
   vy += world.gravity * dt;
 
-  // Integrate velocity into position.
   let x = state.position.x + vx * dt;
   let y = state.position.y + vy * dt;
 

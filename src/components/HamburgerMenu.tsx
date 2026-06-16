@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import "./HamburgerMenu.css";
 
 // Top-right toggle that opens a slide-in nav panel.
-// Links are placeholders — wire onClick handlers when About/Documentation views exist.
 export function HamburgerMenu() {
   const [open, setOpen] = useState(false);
 

@@ -56,7 +56,6 @@ export function useCommand(
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pruneTimersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
 
-  // Clear all pending timers on unmount.
   useEffect(() => {
     const pruneTimers = pruneTimersRef.current;
     return () => {
@@ -77,7 +76,6 @@ export function useCommand(
 
     if (tokens) onRunChain(tokens);
 
-    // Append a history entry and schedule its own removal.
     const id = nextIdRef.current++;
     setHistory((prev) => [...prev, { id, text, status }]);
     const pruneTimer = setTimeout(() => {
@@ -86,7 +84,6 @@ export function useCommand(
     }, HISTORY_LIFETIME_MS);
     pruneTimersRef.current.add(pruneTimer);
 
-    // Flash the input outline, then clear.
     setFlash(status);
     if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
     flashTimerRef.current = setTimeout(() => setFlash(null), FLASH_DURATION_MS);

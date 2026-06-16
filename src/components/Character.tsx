@@ -166,7 +166,6 @@ export function Character({
           stroke="black"
           strokeWidth={MOUTH_THICKNESS}
           fill="black"
-          // strokeLinecap="round"
         />
       </svg>
     </div>

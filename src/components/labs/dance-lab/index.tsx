@@ -92,15 +92,18 @@ export function DanceLab({ avatar, onBack }: DanceLabProps) {
   // the body is GROUNDED, and it has SETTLED (velocity ~0). A downward
   // force settles instantly but waits out the pose window; a horizontal
   // skid waits for friction to stop it; a launch waits until landing.
+  //
+  // Destructured to primitives so the effect re-runs only when one of
+  // these actually changes — depending on the whole `physics` object
+  // would fire every frame (new object identity per render).
+  const { isPlaying } = sequencer;
+  const { resting, teleport } = physics;
+  const { x: posX, y: posY } = physics.position;
   useEffect(() => {
-    if (
-      !sequencer.isPlaying &&
-      physics.resting &&
-      (physics.position.x !== 0 || physics.position.y !== 0)
-    ) {
-      physics.teleport(0, 0);
+    if (!isPlaying && resting && (posX !== 0 || posY !== 0)) {
+      teleport(0, 0);
     }
-  }, [sequencer.isPlaying, physics]);
+  }, [isPlaying, resting, posX, posY, teleport]);
 
   const rig = CHARACTER_RIGS[avatar.animal];
   const palette = ADJECTIVE_PALETTES[avatar.adjective];
